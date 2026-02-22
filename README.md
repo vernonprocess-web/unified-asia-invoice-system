@@ -2,7 +2,11 @@
 
 A production-ready web application for Managing Quotations, Tax Invoices, Delivery Orders, and Customer Statements for UNIFIED ASIA SOLUTIONS PTE LTD.
 
-## Architecture
+## Production Links
+- **Frontend App**: [https://unified-asia-invoice-frontend.pages.dev](https://unified-asia-invoice-frontend.pages.dev)
+- **Backend API**: [https://unified-asia-invoice-system.vernon-process.workers.dev](https://unified-asia-invoice-system.vernon-process.workers.dev)
+
+## Architecture Overview
 
 *   **Frontend**: React, Vite, TailwindCSS (Cloudflare Pages)
 *   **Backend**: Cloudflare Workers (Hono REST API)
