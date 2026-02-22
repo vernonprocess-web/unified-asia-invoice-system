@@ -1,0 +1,16 @@
+name = "unified-asia-invoice-system"
+main = "src/index.ts"
+compatibility_date = "2024-04-05"
+compatibility_flags = ["nodejs_compat"]
+
+# D1 Database binding
+[[d1_databases]]
+binding = "DB"
+database_name = "unified-asia-db"
+database_id = "default_id" # This will be set properly during deployment
+migrations_dir = "../migrations"
+
+# R2 Bucket binding
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "unified-asia-bucket"

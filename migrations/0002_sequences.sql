@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS sequences (
+  id TEXT PRIMARY KEY,
+  last_value INTEGER NOT NULL DEFAULT 0,
+  year TEXT NOT NULL
+);

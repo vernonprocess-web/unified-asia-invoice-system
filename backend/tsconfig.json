@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "target": "es2021",
+        "module": "esnext",
+        "moduleResolution": "bundler",
+        "strict": true,
+        "lib": [
+            "esnext"
+        ],
+        "types": [
+            "@cloudflare/workers-types"
+        ]
+    }
+}
