@@ -1,5 +1,7 @@
 import { Page, Text, View, Document, StyleSheet, Image } from '@react-pdf/renderer';
 
+const BACKEND_URL = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace('/api', '') : 'http://localhost:8787';
+
 export interface TemplateConfig {
     font_family: string;
     header_font_size: number;
@@ -180,7 +182,7 @@ export const BaseTemplate = ({
                 <View style={styles.header}>
                     <View style={styles.headerLeft}>
                         {showLogo && settings?.logo_url && (
-                            <Image source={{ uri: `http://localhost:8787${settings.logo_url}` }} style={styles.logo} />
+                            <Image source={{ uri: `${BACKEND_URL}${settings.logo_url}` }} style={styles.logo} />
                         )}
                         <View style={styles.companyDetails}>
                             <Text style={styles.companyName}>{settings?.company_name || 'UNIFIED ASIA SOLUTIONS PTE LTD'}</Text>

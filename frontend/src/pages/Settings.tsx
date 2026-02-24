@@ -3,6 +3,8 @@ import { api } from '../api';
 import { Save, UploadCloud, FileCode2, Download, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { PlaceholderRegistry } from '../components/PlaceholderRegistry';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8787/api';
+
 export default function Settings() {
     const [settings, setSettings] = useState<any>(null);
     const [saving, setSaving] = useState(false);
@@ -217,7 +219,7 @@ export default function Settings() {
                     <div className="border rounded-lg p-6 flex flex-col items-center justify-center text-center">
                         <label className="block text-sm font-medium text-gray-900 mb-4 w-full text-left">Company Logo</label>
                         {settings.logo_url ? (
-                            <img src={`http://localhost:8787${settings.logo_url}`} alt="Logo" className="h-24 object-contain mb-4 bg-gray-50 p-2 rounded border" />
+                            <img src={`${API_URL.replace('/api', '')}${settings.logo_url}`} alt="Logo" className="h-24 object-contain mb-4 bg-gray-50 p-2 rounded border" />
                         ) : (
                             <div className="h-24 w-48 bg-gray-100 mb-4 border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 rounded">No logo uploaded</div>
                         )}
@@ -231,7 +233,7 @@ export default function Settings() {
                     <div className="border rounded-lg p-6 flex flex-col items-center justify-center text-center">
                         <label className="block text-sm font-medium text-gray-900 mb-4 w-full text-left">PayNow QR Code</label>
                         {settings.paynow_qr_url ? (
-                            <img src={`http://localhost:8787${settings.paynow_qr_url}`} alt="PayNow QR" className="h-32 w-32 object-contain mb-4 bg-gray-50 p-2 rounded border" />
+                            <img src={`${API_URL.replace('/api', '')}${settings.paynow_qr_url}`} alt="PayNow QR" className="h-32 w-32 object-contain mb-4 bg-gray-50 p-2 rounded border" />
                         ) : (
                             <div className="h-32 w-32 bg-gray-100 mb-4 border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 rounded">No QR uploaded</div>
                         )}
