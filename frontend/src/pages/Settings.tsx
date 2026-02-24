@@ -86,7 +86,8 @@ export default function Settings() {
             setUploadError(null);
             setUploadSuccess(null);
 
-            const response = await fetch('http://localhost:8787/api/template-files/validate-upload', {
+            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8787/api';
+            const response = await fetch(`${API_URL}/template-files/validate-upload`, {
                 method: 'POST',
                 body: formData
             });
