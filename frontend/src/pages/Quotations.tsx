@@ -14,9 +14,16 @@ export default function Quotations() {
     const [generatingPdf, setGeneratingPdf] = useState<number | null>(null);
     const [formData, setFormData] = useState<any>({
         customer_id: '', issue_date: format(new Date(), 'yyyy-MM-dd'),
-        expiry_date: format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd'),
-        notes: '', items: []
+        expiry_date: format(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd'),
+        validity_days: 7, payment_terms: '30 Days', notes: '', items: []
     });
+
+    const calculateExpiryDate = (issueDate: string, days: number) => {
+        if (!issueDate) return '';
+        const date = new Date(issueDate);
+        date.setDate(date.getDate() + (parseInt(days as any) || 0));
+        return format(date, 'yyyy-MM-dd');
+    };
 
     useEffect(() => {
         loadData();
@@ -89,8 +96,8 @@ export default function Quotations() {
     const openCreate = () => {
         setFormData({
             customer_id: '', issue_date: format(new Date(), 'yyyy-MM-dd'),
-            expiry_date: format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd'),
-            notes: '', items: []
+            expiry_date: format(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd'),
+            validity_days: 7, payment_terms: '30 Days', notes: '', items: []
         });
         setEditingId(null);
         setShowForm(true);
@@ -141,7 +148,7 @@ export default function Quotations() {
                 customer_id: fullQuotation.customer_id,
                 issue_date: format(new Date(), 'yyyy-MM-dd'),
                 due_date: format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd'),
-                payment_terms: '30 Days',
+                payment_terms: fullQuotation.payment_terms || '30 Days',
                 subtotal: fullQuotation.subtotal,
                 total: fullQuotation.total,
                 notes: fullQuotation.notes,
@@ -204,7 +211,7 @@ export default function Quotations() {
                             </button>
                         </div>
                         <form onSubmit={handleSave} className="p-6">
-                            <div className="grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-3 mb-8">
+                            <div className="grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-4 mb-8">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-900">Customer</label>
                                     <select required value={formData.customer_id} onChange={e => setFormData({ ...formData, customer_id: e.target.value })} className="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-brand sm:text-sm sm:leading-6 px-3">
@@ -213,12 +220,85 @@ export default function Quotations() {
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-900">Issue Date</label>
-                                    <input required type="date" value={formData.issue_date} onChange={e => setFormData({ ...formData, issue_date: e.target.value })} className="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-brand sm:text-sm sm:leading-6 px-3" />
+                                    <label className="block text-sm font-medium text-gray-900">Quotation Date</label>
+                                    <input required type="date" value={formData.issue_date} onChange={e => {
+                                        const newDate = e.target.value;
+                                        setFormData({ ...formData, issue_date: newDate, expiry_date: calculateExpiryDate(newDate, formData.validity_days) });
+                                    }} className="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-brand sm:text-sm sm:leading-6 px-3" />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-900">Expiry Date</label>
+                                    <label className="block text-sm font-medium text-gray-900">Validity Period (Days)</label>
+                                    <div className="mt-2 flex gap-2">
+                                        <select
+                                            value={[7, 14, 30, 60].includes(Number(formData.validity_days)) ? formData.validity_days : 'custom'}
+                                            onChange={e => {
+                                                const val = e.target.value;
+                                                if (val !== 'custom') {
+                                                    const days = parseInt(val) || 0;
+                                                    setFormData({ ...formData, validity_days: days, expiry_date: calculateExpiryDate(formData.issue_date, days) });
+                                                } else {
+                                                    setFormData({ ...formData, validity_days: '' });
+                                                }
+                                            }}
+                                            className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-brand sm:text-sm sm:leading-6 px-3"
+                                        >
+                                            <option value="7">7</option>
+                                            <option value="14">14</option>
+                                            <option value="30">30</option>
+                                            <option value="60">60</option>
+                                            <option value="custom">Custom...</option>
+                                        </select>
+                                        {![7, 14, 30, 60].includes(Number(formData.validity_days)) && (
+                                            <input
+                                                type="number"
+                                                value={formData.validity_days}
+                                                onChange={e => {
+                                                    const days = parseInt(e.target.value) || 0;
+                                                    setFormData({ ...formData, validity_days: e.target.value, expiry_date: calculateExpiryDate(formData.issue_date, days) });
+                                                }}
+                                                className="block w-24 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-brand sm:text-sm sm:leading-6 px-3"
+                                                placeholder="Days"
+                                            />
+                                        )}
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-900">Validity Date</label>
                                     <input required type="date" value={formData.expiry_date} onChange={e => setFormData({ ...formData, expiry_date: e.target.value })} className="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-brand sm:text-sm sm:leading-6 px-3" />
+                                </div>
+                                <div className="sm:col-span-4">
+                                    <label className="block text-sm font-medium text-gray-900">Payment Term</label>
+                                    <div className="mt-2 flex gap-2">
+                                        <select
+                                            value={['7 Days', '14 Days', '30 Days', 'Cash on Delivery', '50% Deposit, 50% Before Delivery', 'Immediate Payment'].includes(formData.payment_terms) ? formData.payment_terms : 'custom'}
+                                            onChange={e => {
+                                                const val = e.target.value;
+                                                if (val !== 'custom') {
+                                                    setFormData({ ...formData, payment_terms: val });
+                                                } else {
+                                                    setFormData({ ...formData, payment_terms: '' });
+                                                }
+                                            }}
+                                            className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-brand sm:text-sm sm:leading-6 px-3"
+                                        >
+                                            <option value="7 Days">7 Days</option>
+                                            <option value="14 Days">14 Days</option>
+                                            <option value="30 Days">30 Days</option>
+                                            <option value="Cash on Delivery">Cash on Delivery</option>
+                                            <option value="50% Deposit, 50% Before Delivery">50% Deposit, 50% Before Delivery</option>
+                                            <option value="Immediate Payment">Immediate Payment</option>
+                                            <option value="custom">Custom...</option>
+                                        </select>
+                                        {!['7 Days', '14 Days', '30 Days', 'Cash on Delivery', '50% Deposit, 50% Before Delivery', 'Immediate Payment'].includes(formData.payment_terms) && (
+                                            <input
+                                                type="text"
+                                                value={formData.payment_terms}
+                                                onChange={e => setFormData({ ...formData, payment_terms: e.target.value })}
+                                                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-brand sm:text-sm sm:leading-6 px-3"
+                                                placeholder="e.g. 45 Days"
+                                            />
+                                        )}
+                                    </div>
                                 </div>
                             </div>
 
@@ -302,9 +382,8 @@ export default function Quotations() {
                                     <tr>
                                         <th className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Quote #</th>
                                         <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Customer</th>
-                                        <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Issue Date</th>
+                                        <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Quotation Date</th>
                                         <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Total</th>
-                                        <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">PDF</th>
                                         <th className="relative py-3.5 pl-3 pr-4 sm:pr-6"><span className="sr-only">Actions</span></th>
                                     </tr>
                                 </thead>
@@ -315,11 +394,8 @@ export default function Quotations() {
                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-900">{qt.company_name || qt.customer_name}</td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{format(new Date(qt.issue_date), 'dd MMM yyyy')}</td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-900 font-medium">${qt.total.toFixed(2)}</td>
-                                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                                {qt.pdf_url ? <a href={`http://localhost:8787${qt.pdf_url}`} target="_blank" rel="noreferrer" className="text-brand hover:underline flex items-center"><Download className="w-4 h-4 mr-1" /> View PDF</a> : <span className="text-gray-400">Not Generated</span>}
-                                            </td>
                                             <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6 space-x-3 flex justify-end items-center">
-                                                <button onClick={() => handleGeneratePDF(qt)} disabled={generatingPdf === qt.id} className="text-blue-600 hover:text-blue-900 inline-flex items-center" title="Generate PDF">{generatingPdf === qt.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}</button>
+                                                <button onClick={() => handleGeneratePDF(qt)} disabled={generatingPdf === qt.id} className="text-blue-600 hover:text-blue-900 inline-flex items-center" title="Download Document">{generatingPdf === qt.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}</button>
                                                 <button onClick={() => handleConvert(qt)} title="Convert to Invoice" className="text-green-600 hover:text-green-900 inline-flex items-center"><FileText className="w-4 h-4" /></button>
                                                 <button onClick={() => openEdit(qt)} className="text-indigo-600 hover:text-indigo-900 inline-flex items-center"><Edit2 className="w-4 h-4" /></button>
                                                 <button onClick={() => handleDelete(qt.id)} className="text-red-600 hover:text-red-900 inline-flex items-center"><Trash2 className="w-4 h-4" /></button>
@@ -328,7 +404,7 @@ export default function Quotations() {
                                     ))}
                                     {quotations.length === 0 && (
                                         <tr>
-                                            <td colSpan={6} className="py-8 text-center text-sm text-gray-500">No quotations found.</td>
+                                            <td colSpan={5} className="py-8 text-center text-sm text-gray-500">No quotations found.</td>
                                         </tr>
                                     )}
                                 </tbody>

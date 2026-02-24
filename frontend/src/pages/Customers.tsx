@@ -8,7 +8,7 @@ export default function Customers() {
     const [editingId, setEditingId] = useState<number | null>(null);
     const [formData, setFormData] = useState({
         customer_code: '', customer_name: '', company_name: '', UEN: '',
-        billing_address: '', delivery_address: '', contact_person: '', phone: '', email: ''
+        billing_address: '', delivery_address: '', phone: '', email: ''
     });
 
     useEffect(() => {
@@ -58,7 +58,7 @@ export default function Customers() {
     const openCreate = () => {
         setFormData({
             customer_code: '', customer_name: '', company_name: '', UEN: '',
-            billing_address: '', delivery_address: '', contact_person: '', phone: '', email: ''
+            billing_address: '', delivery_address: '', phone: '', email: ''
         });
         setEditingId(null);
         setShowForm(true);
@@ -109,10 +109,7 @@ export default function Customers() {
                                     <label className="block text-sm font-medium text-gray-900">UEN</label>
                                     <input type="text" value={formData.UEN} onChange={e => setFormData({ ...formData, UEN: e.target.value })} className="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-brand sm:text-sm sm:leading-6 px-3" />
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-900">Contact Person</label>
-                                    <input type="text" value={formData.contact_person} onChange={e => setFormData({ ...formData, contact_person: e.target.value })} className="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-brand sm:text-sm sm:leading-6 px-3" />
-                                </div>
+
                                 <div>
                                     <label className="block text-sm font-medium text-gray-900">Phone</label>
                                     <input type="text" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} className="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-brand sm:text-sm sm:leading-6 px-3" />

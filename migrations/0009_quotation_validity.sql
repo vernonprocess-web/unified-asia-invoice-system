@@ -1,0 +1,1 @@
+ALTER TABLE quotations ADD COLUMN validity_days INTEGER DEFAULT 7;

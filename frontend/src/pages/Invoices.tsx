@@ -15,8 +15,18 @@ export default function Invoices() {
     const [formData, setFormData] = useState<any>({
         customer_id: '', issue_date: format(new Date(), 'yyyy-MM-dd'),
         due_date: format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd'),
-        payment_terms: '30 Days', notes: '', items: []
+        payment_terms: '30 Days', project_name: '', notes: '', items: []
     });
+
+    const calculateDueDate = (issueDate: string, paymentTerms: string) => {
+        if (!issueDate) return '';
+        const match = paymentTerms ? paymentTerms.match(/(\d+)/) : null;
+        const days = match ? parseInt(match[1], 10) : 0;
+
+        const date = new Date(issueDate);
+        date.setDate(date.getDate() + days);
+        return format(date, 'yyyy-MM-dd');
+    };
 
     useEffect(() => {
         loadData();
@@ -89,7 +99,7 @@ export default function Invoices() {
         setFormData({
             customer_id: '', issue_date: format(new Date(), 'yyyy-MM-dd'),
             due_date: format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd'),
-            payment_terms: '30 Days', notes: '', items: []
+            payment_terms: '30 Days', project_name: '', notes: '', items: []
         });
         setEditingId(null);
         setShowForm(true);
@@ -137,6 +147,7 @@ export default function Invoices() {
             const doPayload = {
                 invoice_id: fullInvoice.id,
                 customer_id: fullInvoice.customer_id,
+                project_name: fullInvoice.project_name,
                 delivery_date: format(new Date(), 'yyyy-MM-dd'),
                 delivery_status: 'Pending',
                 items: fullInvoice.items.map((item: any) => ({
@@ -195,25 +206,64 @@ export default function Invoices() {
                             </button>
                         </div>
                         <form onSubmit={handleSave} className="p-6">
-                            <div className="grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-3 mb-8">
-                                <div>
+                            <div className="grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-4 mb-8 border-b border-gray-200 pb-8">
+                                <div className="sm:col-span-2">
                                     <label className="block text-sm font-medium text-gray-900">Customer</label>
                                     <select required value={formData.customer_id} onChange={e => setFormData({ ...formData, customer_id: e.target.value })} className="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-brand sm:text-sm sm:leading-6 px-3">
                                         <option value="">Select a customer</option>
                                         {customers.map(c => <option key={c.id} value={c.id}>{c.company_name || c.customer_name} ({c.customer_code})</option>)}
                                     </select>
                                 </div>
+                                <div className="sm:col-span-2">
+                                    <label className="block text-sm font-medium text-gray-900">Project / Site Name</label>
+                                    <input type="text" value={formData.project_name || ''} onChange={e => setFormData({ ...formData, project_name: e.target.value })} className="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-brand sm:text-sm sm:leading-6 px-3" placeholder="Optional" />
+                                </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-900">Issue Date</label>
-                                    <input required type="date" value={formData.issue_date} onChange={e => setFormData({ ...formData, issue_date: e.target.value })} className="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-brand sm:text-sm sm:leading-6 px-3" />
+                                    <label className="block text-sm font-medium text-gray-900">Invoice Date</label>
+                                    <input required type="date" value={formData.issue_date} onChange={e => {
+                                        const newDate = e.target.value;
+                                        setFormData({ ...formData, issue_date: newDate, due_date: calculateDueDate(newDate, formData.payment_terms) });
+                                    }} className="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-brand sm:text-sm sm:leading-6 px-3" />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-900">Due Date</label>
                                     <input required type="date" value={formData.due_date} onChange={e => setFormData({ ...formData, due_date: e.target.value })} className="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-brand sm:text-sm sm:leading-6 px-3" />
                                 </div>
-                                <div className="sm:col-span-3">
-                                    <label className="block text-sm font-medium text-gray-900">Payment Terms</label>
-                                    <input type="text" value={formData.payment_terms} onChange={e => setFormData({ ...formData, payment_terms: e.target.value })} className="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-brand sm:text-sm sm:leading-6 px-3" placeholder="e.g. 30 Days, COD" />
+                                <div className="sm:col-span-2">
+                                    <label className="block text-sm font-medium text-gray-900">Payment Term</label>
+                                    <div className="mt-2 flex gap-2">
+                                        <select
+                                            value={['7 Days', '14 Days', '30 Days', 'Cash on Delivery', '50% Deposit, 50% Before Delivery', 'Immediate Payment'].includes(formData.payment_terms) ? formData.payment_terms : 'custom'}
+                                            onChange={e => {
+                                                const val = e.target.value;
+                                                if (val !== 'custom') {
+                                                    setFormData({ ...formData, payment_terms: val, due_date: calculateDueDate(formData.issue_date, val) });
+                                                } else {
+                                                    setFormData({ ...formData, payment_terms: '' });
+                                                }
+                                            }}
+                                            className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-brand sm:text-sm sm:leading-6 px-3"
+                                        >
+                                            <option value="7 Days">7 Days</option>
+                                            <option value="14 Days">14 Days</option>
+                                            <option value="30 Days">30 Days</option>
+                                            <option value="Cash on Delivery">Cash on Delivery</option>
+                                            <option value="50% Deposit, 50% Before Delivery">50% Deposit, 50% Before Delivery</option>
+                                            <option value="Immediate Payment">Immediate Payment</option>
+                                            <option value="custom">Custom...</option>
+                                        </select>
+                                        {!['7 Days', '14 Days', '30 Days', 'Cash on Delivery', '50% Deposit, 50% Before Delivery', 'Immediate Payment'].includes(formData.payment_terms) && (
+                                            <input
+                                                type="text"
+                                                value={formData.payment_terms}
+                                                onChange={e => {
+                                                    setFormData({ ...formData, payment_terms: e.target.value, due_date: calculateDueDate(formData.issue_date, e.target.value) });
+                                                }}
+                                                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-brand sm:text-sm sm:leading-6 px-3"
+                                                placeholder="e.g. 45 Days"
+                                            />
+                                        )}
+                                    </div>
                                 </div>
                             </div>
 
@@ -297,10 +347,9 @@ export default function Invoices() {
                                     <tr>
                                         <th className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Invoice #</th>
                                         <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Customer</th>
-                                        <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Issue Date</th>
+                                        <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Invoice Date</th>
                                         <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Due Date</th>
                                         <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Total</th>
-                                        <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">PDF</th>
                                         <th className="relative py-3.5 pl-3 pr-4 sm:pr-6"><span className="sr-only">Actions</span></th>
                                     </tr>
                                 </thead>
@@ -312,11 +361,8 @@ export default function Invoices() {
                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{format(new Date(inv.issue_date), 'dd MMM yyyy')}</td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{format(new Date(inv.due_date), 'dd MMM yyyy')}</td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-900 font-medium">${inv.total.toFixed(2)}</td>
-                                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                                {inv.pdf_url ? <a href={`http://localhost:8787${inv.pdf_url}`} target="_blank" rel="noreferrer" className="text-brand hover:underline flex items-center"><Download className="w-4 h-4 mr-1" /> View PDF</a> : <span className="text-gray-400">Not Generated</span>}
-                                            </td>
                                             <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6 space-x-3 flex justify-end items-center">
-                                                <button onClick={() => handleGeneratePDF(inv)} disabled={generatingPdf === inv.id} className="text-blue-600 hover:text-blue-900 inline-flex items-center" title="Generate PDF">{generatingPdf === inv.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}</button>
+                                                <button onClick={() => handleGeneratePDF(inv)} disabled={generatingPdf === inv.id} className="text-blue-600 hover:text-blue-900 inline-flex items-center" title="Download Document">{generatingPdf === inv.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}</button>
                                                 <button onClick={() => handleConvertToDO(inv)} title="Convert to Delivery Order" className="text-green-600 hover:text-green-900 inline-flex items-center"><Truck className="w-4 h-4" /></button>
                                                 <button onClick={() => openEdit(inv)} className="text-indigo-600 hover:text-indigo-900 inline-flex items-center"><Edit2 className="w-4 h-4" /></button>
                                                 <button onClick={() => handleDelete(inv.id)} className="text-red-600 hover:text-red-900 inline-flex items-center"><Trash2 className="w-4 h-4" /></button>
@@ -325,7 +371,7 @@ export default function Invoices() {
                                     ))}
                                     {invoices.length === 0 && (
                                         <tr>
-                                            <td colSpan={7} className="py-8 text-center text-sm text-gray-500">No invoices found.</td>
+                                            <td colSpan={6} className="py-8 text-center text-sm text-gray-500">No invoices found.</td>
                                         </tr>
                                     )}
                                 </tbody>

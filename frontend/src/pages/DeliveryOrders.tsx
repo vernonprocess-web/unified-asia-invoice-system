@@ -14,7 +14,7 @@ export default function DeliveryOrders() {
     const [generatingPdf, setGeneratingPdf] = useState<number | null>(null);
     const [formData, setFormData] = useState<any>({
         customer_id: '', delivery_date: format(new Date(), 'yyyy-MM-dd'),
-        delivery_status: 'Pending', items: []
+        delivery_status: 'Pending', delivery_address: '', contact_person: '', contact_phone: '', project_name: '', items: []
     });
 
     useEffect(() => {
@@ -80,8 +80,8 @@ export default function DeliveryOrders() {
 
     const openCreate = () => {
         setFormData({
-            customer_id: '', delivery_date: format(new Date(), 'yyyy-MM-dd'),
-            delivery_status: 'Pending', items: []
+            do_number: '', customer_id: '', delivery_date: format(new Date(), 'yyyy-MM-dd'),
+            delivery_status: 'Pending', delivery_address: '', contact_person: '', contact_phone: '', project_name: '', items: []
         });
         setEditingId(null);
         setShowForm(true);
@@ -157,13 +157,21 @@ export default function DeliveryOrders() {
                             </button>
                         </div>
                         <form onSubmit={handleSave} className="p-6">
-                            <div className="grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-3 mb-8">
+                            <div className="grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-4 mb-8">
                                 <div>
+                                    <label className="block text-sm font-medium text-gray-900">DO Number</label>
+                                    <input type="text" value={formData.do_number || ''} onChange={e => setFormData({ ...formData, do_number: e.target.value })} className="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-brand sm:text-sm sm:leading-6 px-3" placeholder={editingId ? '' : "Auto-generated"} />
+                                </div>
+                                <div className="sm:col-span-3">
                                     <label className="block text-sm font-medium text-gray-900">Customer</label>
                                     <select required value={formData.customer_id} onChange={e => setFormData({ ...formData, customer_id: e.target.value })} className="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-brand sm:text-sm sm:leading-6 px-3">
                                         <option value="">Select a customer</option>
                                         {customers.map(c => <option key={c.id} value={c.id}>{c.company_name || c.customer_name} ({c.customer_code})</option>)}
                                     </select>
+                                </div>
+                                <div className="sm:col-span-2">
+                                    <label className="block text-sm font-medium text-gray-900">Project / Site Name</label>
+                                    <input type="text" value={formData.project_name || ''} onChange={e => setFormData({ ...formData, project_name: e.target.value })} className="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-brand sm:text-sm sm:leading-6 px-3" placeholder="Optional" />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-900">Delivery Date</label>
@@ -176,6 +184,21 @@ export default function DeliveryOrders() {
                                         <option value="Delivered">Delivered</option>
                                         <option value="Cancelled">Cancelled</option>
                                     </select>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-2 mb-8 border-t border-gray-200 pt-6">
+                                <div className="sm:col-span-2">
+                                    <label className="block text-sm font-medium text-gray-900">Delivery Address</label>
+                                    <textarea rows={3} value={formData.delivery_address || ''} onChange={e => setFormData({ ...formData, delivery_address: e.target.value })} className="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-brand sm:text-sm sm:leading-6 px-3" placeholder="Optional" />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-900">Contact Person</label>
+                                    <input type="text" value={formData.contact_person || ''} onChange={e => setFormData({ ...formData, contact_person: e.target.value })} className="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-brand sm:text-sm sm:leading-6 px-3" placeholder="Optional" />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-900">Contact Person Phone Number</label>
+                                    <input type="text" value={formData.contact_phone || ''} onChange={e => setFormData({ ...formData, contact_phone: e.target.value })} className="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-brand sm:text-sm sm:leading-6 px-3" placeholder="Optional" />
                                 </div>
                             </div>
 
@@ -242,7 +265,7 @@ export default function DeliveryOrders() {
                                         <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Customer</th>
                                         <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Delivery Date</th>
                                         <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Status</th>
-                                        <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Signature / PDF</th>
+                                        <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Signature</th>
                                         <th className="relative py-3.5 pl-3 pr-4 sm:pr-6"><span className="sr-only">Actions</span></th>
                                     </tr>
                                 </thead>
@@ -260,12 +283,11 @@ export default function DeliveryOrders() {
                                                     {doItem.delivery_status}
                                                 </span>
                                             </td>
-                                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 flex flex-col space-y-1">
-                                                {doItem.pdf_url ? <a href={`http://localhost:8787${doItem.pdf_url}`} target="_blank" rel="noreferrer" className="text-brand hover:underline flex items-center"><Download className="w-4 h-4 mr-1" /> View PDF</a> : <span className="text-gray-400">No PDF</span>}
+                                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                                                 {doItem.signature_url ? <span className="text-green-600 flex items-center"><PenTool className="w-4 h-4 mr-1" /> Signed</span> : <span className="text-gray-400">No Signature</span>}
                                             </td>
                                             <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6 space-x-3 flex justify-end items-center">
-                                                <button onClick={() => handleGeneratePDF(doItem)} disabled={generatingPdf === doItem.id} className="text-blue-600 hover:text-blue-900 inline-flex items-center" title="Generate PDF">{generatingPdf === doItem.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}</button>
+                                                <button onClick={() => handleGeneratePDF(doItem)} disabled={generatingPdf === doItem.id} className="text-blue-600 hover:text-blue-900 inline-flex items-center" title="Download Document">{generatingPdf === doItem.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}</button>
                                                 <button onClick={() => openEdit(doItem)} className="text-indigo-600 hover:text-indigo-900 inline-flex items-center"><Edit2 className="w-4 h-4" /></button>
                                                 <button onClick={() => handleDelete(doItem.id)} className="text-red-600 hover:text-red-900 inline-flex items-center"><Trash2 className="w-4 h-4" /></button>
                                             </td>

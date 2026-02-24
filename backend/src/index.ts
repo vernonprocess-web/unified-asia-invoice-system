@@ -10,6 +10,9 @@ import invoicesApp from './routes/invoices'
 import deliveryOrdersApp from './routes/delivery_orders'
 import statementsApp from './routes/statements'
 import filesApp from './routes/files'
+import documentTemplatesApp from './routes/document_templates'
+import templateFilesApp from './routes/template_files'
+import placeholdersApp from './routes/placeholders'
 
 const app = new Hono<{ Bindings: Bindings }>()
 
@@ -30,5 +33,8 @@ app.route('/api/invoices', invoicesApp)
 app.route('/api/delivery-orders', deliveryOrdersApp)
 app.route('/api/statements', statementsApp)
 app.route('/api/files', filesApp)
+app.route('/api/document-templates', documentTemplatesApp)
+app.route('/api/template-files', templateFilesApp)
+app.route('/api/placeholders', placeholdersApp)
 
 export default app

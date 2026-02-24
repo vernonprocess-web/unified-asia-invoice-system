@@ -1,10 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../api';
-import { Save, UploadCloud } from 'lucide-react';
+import { Save, UploadCloud, FileCode2, Download, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { PlaceholderRegistry } from '../components/PlaceholderRegistry';
 
 export default function Settings() {
     const [settings, setSettings] = useState<any>(null);
     const [saving, setSaving] = useState(false);
+    const [viewingRegistry, setViewingRegistry] = useState(false);
+
+    // DOCX Upload States
+    const [uploadingState, setUploadingState] = useState<{ [key: string]: boolean }>({});
+    const [uploadError, setUploadError] = useState<string | null>(null);
+    const [uploadSuccess, setUploadSuccess] = useState<string | null>(null);
 
     useEffect(() => {
         loadSettings();
@@ -45,7 +52,70 @@ export default function Settings() {
         }
     };
 
+    const downloadBaseTemplate = async (templateType: string) => {
+        try {
+            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8787/api';
+            const response = await fetch(`${API_URL}/template-files/generate-base/${templateType}`);
+            if (!response.ok) throw new Error("Failed to generate base template");
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `base_template_${templateType}.docx`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        } catch (e) {
+            console.error(e);
+            alert("Error generating the base template.");
+        }
+    };
+
+    const handleTemplateUpload = async (e: React.ChangeEvent<HTMLInputElement>, templateType: string) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('template_type', templateType);
+
+            setUploadingState(prev => ({ ...prev, [templateType]: true }));
+            setUploadError(null);
+            setUploadSuccess(null);
+
+            const response = await fetch('http://localhost:8787/api/template-files/validate-upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                if (result.details && result.details.length > 0) {
+                    const invalid = result.details[0];
+                    setUploadError(`Invalid placeholder: {{${invalid.placeholder}}}. ${invalid.error} ${invalid.suggestion || ''}`);
+                } else {
+                    setUploadError(result.error || 'Failed to validate template.');
+                }
+            } else {
+                setUploadSuccess(`Custom Template successfully mapped for ${templateType.replace('_', ' ')}!`);
+            }
+        } catch (e) {
+            setUploadError('Network error while uploading template.');
+        } finally {
+            setUploadingState(prev => ({ ...prev, [templateType]: false }));
+            e.target.value = ''; // Reset input
+        }
+    };
+
     if (!settings) return <div className="p-8">Loading settings...</div>;
+
+    if (viewingRegistry) {
+        return <PlaceholderRegistry onClose={() => setViewingRegistry(false)} />;
+    }
 
     return (
         <div className="max-w-4xl mx-auto">
@@ -171,6 +241,111 @@ export default function Settings() {
                         </label>
                     </div>
 
+                </div>
+            </div>
+
+            {/* Document Templates Section */}
+            <div className="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2 p-6 mb-8 border-t-4 border-brand">
+                <div className="flex justify-between items-center mb-6 border-b pb-4">
+                    <div>
+                        <h2 className="text-lg font-semibold leading-7 text-gray-900">Document Templates</h2>
+                        <p className="text-sm text-gray-500">Customize the PDF layout and branding for your daily documents. Upload your own DOCX template to auto-populate layout properties.</p>
+                    </div>
+                    <button
+                        onClick={() => setViewingRegistry(true)}
+                        className="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-800 rounded-md shadow-sm hover:bg-gray-200 transition-all font-medium border"
+                    >
+                        <FileCode2 className="w-4 h-4 mr-2" />
+                        Placeholder Registry
+                    </button>
+                </div>
+
+                {uploadError && (
+                    <div className="mb-6 bg-red-50 text-red-700 p-4 rounded-md text-sm flex items-start">
+                        <AlertCircle className="w-5 h-5 mr-3 shrink-0 mt-0.5" />
+                        <span>{uploadError}</span>
+                    </div>
+                )}
+
+                {uploadSuccess && (
+                    <div className="mb-6 bg-green-50 text-green-700 p-4 rounded-md text-sm flex items-start">
+                        <CheckCircle2 className="w-5 h-5 mr-3 shrink-0 mt-0.5" />
+                        <span>{uploadSuccess}</span>
+                    </div>
+                )}
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* Quotation */}
+                    <div className="border rounded-lg p-6 flex flex-col items-center text-center bg-gray-50 hover:bg-gray-100 transition-colors">
+                        <div className="bg-white p-3 rounded-full shadow-sm mb-4">
+                            <FileCode2 className="w-8 h-8 text-brand" />
+                        </div>
+                        <h3 className="font-semibold text-gray-900 mb-2">Quotation Template</h3>
+                        <p className="text-sm text-gray-500 mb-6 h-10">Upload custom DOCX to format Quotes.</p>
+
+                        <div className="flex flex-col w-full space-y-3">
+                            <label className={`w-full flex justify-center items-center px-4 py-2 bg-brand border border-transparent shadow-sm text-sm font-medium rounded-md text-white hover:bg-opacity-90 cursor-pointer ${uploadingState['quotation'] ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                                <UploadCloud className="w-4 h-4 mr-2" />
+                                {uploadingState['quotation'] ? 'Uploading...' : 'Upload DOCX'}
+                                <input type="file" className="hidden" accept=".docx" onChange={(e) => handleTemplateUpload(e, 'quotation')} disabled={uploadingState['quotation']} />
+                            </label>
+                            <button
+                                onClick={() => downloadBaseTemplate('quotation')}
+                                className="w-full inline-flex justify-center items-center px-4 py-2 bg-white border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 hover:bg-gray-50"
+                            >
+                                <Download className="w-4 h-4 mr-2" />
+                                Download Base
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Invoice */}
+                    <div className="border rounded-lg p-6 flex flex-col items-center text-center bg-gray-50 hover:bg-gray-100 transition-colors">
+                        <div className="bg-white p-3 rounded-full shadow-sm mb-4">
+                            <FileCode2 className="w-8 h-8 text-brand" />
+                        </div>
+                        <h3 className="font-semibold text-gray-900 mb-2">Tax Invoice Template</h3>
+                        <p className="text-sm text-gray-500 mb-6 h-10">Upload custom DOCX to format Invoices.</p>
+
+                        <div className="flex flex-col w-full space-y-3">
+                            <label className={`w-full flex justify-center items-center px-4 py-2 bg-brand border border-transparent shadow-sm text-sm font-medium rounded-md text-white hover:bg-opacity-90 cursor-pointer ${uploadingState['invoice'] ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                                <UploadCloud className="w-4 h-4 mr-2" />
+                                {uploadingState['invoice'] ? 'Uploading...' : 'Upload DOCX'}
+                                <input type="file" className="hidden" accept=".docx" onChange={(e) => handleTemplateUpload(e, 'invoice')} disabled={uploadingState['invoice']} />
+                            </label>
+                            <button
+                                onClick={() => downloadBaseTemplate('invoice')}
+                                className="w-full inline-flex justify-center items-center px-4 py-2 bg-white border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 hover:bg-gray-50"
+                            >
+                                <Download className="w-4 h-4 mr-2" />
+                                Download Base
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Delivery Order */}
+                    <div className="border rounded-lg p-6 flex flex-col items-center text-center bg-gray-50 hover:bg-gray-100 transition-colors">
+                        <div className="bg-white p-3 rounded-full shadow-sm mb-4">
+                            <FileCode2 className="w-8 h-8 text-brand" />
+                        </div>
+                        <h3 className="font-semibold text-gray-900 mb-2">Delivery Order Template</h3>
+                        <p className="text-sm text-gray-500 mb-6 h-10">Upload custom DOCX to format DOs.</p>
+
+                        <div className="flex flex-col w-full space-y-3">
+                            <label className={`w-full flex justify-center items-center px-4 py-2 bg-brand border border-transparent shadow-sm text-sm font-medium rounded-md text-white hover:bg-opacity-90 cursor-pointer ${uploadingState['delivery_order'] ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                                <UploadCloud className="w-4 h-4 mr-2" />
+                                {uploadingState['delivery_order'] ? 'Uploading...' : 'Upload DOCX'}
+                                <input type="file" className="hidden" accept=".docx" onChange={(e) => handleTemplateUpload(e, 'delivery_order')} disabled={uploadingState['delivery_order']} />
+                            </label>
+                            <button
+                                onClick={() => downloadBaseTemplate('delivery_order')}
+                                className="w-full inline-flex justify-center items-center px-4 py-2 bg-white border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 hover:bg-gray-50"
+                            >
+                                <Download className="w-4 h-4 mr-2" />
+                                Download Base
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

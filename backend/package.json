@@ -7,7 +7,12 @@
     "deploy": "wrangler deploy"
   },
   "dependencies": {
-    "hono": "^4.2.0"
+    "convertapi": "^1.15.0",
+    "docx": "^9.5.3",
+    "docxtemplater": "^3.68.2",
+    "hono": "^4.2.0",
+    "jszip": "^3.10.1",
+    "pizzip": "^3.2.0"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20240405.0",

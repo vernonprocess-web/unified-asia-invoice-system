@@ -25,16 +25,16 @@ quotationsApp.get('/:id', async (c) => {
 
 quotationsApp.post('/', async (c) => {
     const body = await c.req.json()
-    const { customer_id, issue_date, expiry_date, subtotal, total, notes, items } = body
+    const { customer_id, issue_date, expiry_date, validity_days, payment_terms, subtotal, total, notes, items } = body
 
     try {
         const quotation_number = await generateDocumentNumber(c.env, 'Q', 'quotation')
 
         // Insert quotation
         const { results } = await c.env.DB.prepare(
-            `INSERT INTO quotations (quotation_number, customer_id, issue_date, expiry_date, subtotal, total, notes) 
-       VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id`
-        ).bind(quotation_number, customer_id, issue_date, expiry_date, subtotal, total, notes).all()
+            `INSERT INTO quotations (quotation_number, customer_id, issue_date, expiry_date, validity_days, payment_terms, subtotal, total, notes) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`
+        ).bind(quotation_number, customer_id, issue_date, expiry_date, validity_days, payment_terms, subtotal, total, notes).all()
 
         const quotationId = results[0].id
 
@@ -59,14 +59,14 @@ quotationsApp.post('/', async (c) => {
 quotationsApp.put('/:id', async (c) => {
     const id = c.req.param('id')
     const body = await c.req.json()
-    const { customer_id, issue_date, expiry_date, subtotal, total, notes, items } = body
+    const { customer_id, issue_date, expiry_date, validity_days, payment_terms, subtotal, total, notes, items } = body
 
     try {
         await c.env.DB.prepare(
             `UPDATE quotations 
-       SET customer_id = ?, issue_date = ?, expiry_date = ?, subtotal = ?, total = ?, notes = ?, updated_at = CURRENT_TIMESTAMP 
+       SET customer_id = ?, issue_date = ?, expiry_date = ?, validity_days = ?, payment_terms = ?, subtotal = ?, total = ?, notes = ?, updated_at = CURRENT_TIMESTAMP 
        WHERE id = ?`
-        ).bind(customer_id, issue_date, expiry_date, subtotal, total, notes, id).run()
+        ).bind(customer_id, issue_date, expiry_date, validity_days, payment_terms, subtotal, total, notes, id).run()
 
         // Replace items
         await c.env.DB.prepare('DELETE FROM quotation_items WHERE quotation_id = ?').bind(id).run()
