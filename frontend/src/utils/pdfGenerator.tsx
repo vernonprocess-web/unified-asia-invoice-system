@@ -21,7 +21,11 @@ const getTemplateComponent = async (
 
     let templateConfig: any = null;
     if (templateType) {
-        templateConfig = await api.get(`/document-templates/${templateType}`);
+        try {
+            templateConfig = await api.get(`/document-templates/${templateType}`);
+        } catch (e) {
+            console.warn(`Could not load design config for ${templateType}, using normal defaults.`, e);
+        }
     }
 
     if (type === 'Quotation') {
