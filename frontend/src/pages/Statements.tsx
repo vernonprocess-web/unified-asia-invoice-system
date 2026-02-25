@@ -86,7 +86,7 @@ export default function Statements() {
                         <label className="block text-sm font-medium text-gray-900">Customer</label>
                         <select required value={formData.customer_id} onChange={e => setFormData({ ...formData, customer_id: e.target.value })} className="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-brand sm:text-sm sm:leading-6 px-3">
                             <option value="">Select Customer</option>
-                            {customers.map(c => <option key={c.id} value={c.id}>{c.customer_name}</option>)}
+                            {customers.map(c => <option key={c.id} value={c.id}>{c.company_name || c.customer_name}</option>)}
                         </select>
                     </div>
                     <div className="sm:col-span-1">
