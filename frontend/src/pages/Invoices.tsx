@@ -3,6 +3,7 @@ import { api } from '../api';
 import { Plus, Edit2, Trash2, X, Download, Truck, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { generateAndUploadPDF } from '../utils/pdfGenerator';
+import { formatCurrency } from '../utils/formatCurrency';
 
 export default function Invoices() {
     const [invoices, setInvoices] = useState<any[]>([]);
@@ -303,7 +304,7 @@ export default function Invoices() {
                                                         <input type="number" min="0" step="0.01" value={item.unit_price} onChange={e => handleItemChange(idx, 'unit_price', e.target.value)} className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-brand sm:text-sm sm:leading-6 px-3" />
                                                     </td>
                                                     <td className="px-3 py-2 text-sm font-medium text-gray-900">
-                                                        ${(item.amount || 0).toFixed(2)}
+                                                        ${formatCurrency(item.amount)}
                                                     </td>
                                                     <td className="px-2 py-2 text-right">
                                                         <button type="button" onClick={() => removeItemRow(idx)} className="text-red-500 hover:text-red-700"><Trash2 className="w-4 h-4" /></button>
@@ -318,7 +319,7 @@ export default function Invoices() {
                                     <div className="pt-4 flex justify-end">
                                         <div className="text-right">
                                             <div className="text-sm text-gray-500">Total Amount</div>
-                                            <div className="text-2xl font-bold text-gray-900">${totalAmount.toFixed(2)}</div>
+                                            <div className="text-2xl font-bold text-gray-900">${formatCurrency(totalAmount)}</div>
                                         </div>
                                     </div>
                                 </div>
@@ -360,7 +361,7 @@ export default function Invoices() {
                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-900">{inv.company_name || inv.customer_name}</td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{format(new Date(inv.issue_date), 'dd MMM yyyy')}</td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{format(new Date(inv.due_date), 'dd MMM yyyy')}</td>
-                                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-900 font-medium">${inv.total.toFixed(2)}</td>
+                                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-900 font-medium">${formatCurrency(inv.total)}</td>
                                             <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6 space-x-3 flex justify-end items-center">
                                                 <button onClick={() => handleGeneratePDF(inv)} disabled={generatingPdf === inv.id} className="text-blue-600 hover:text-blue-900 inline-flex items-center" title="Download Document">{generatingPdf === inv.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}</button>
                                                 <button onClick={() => handleConvertToDO(inv)} title="Convert to Delivery Order" className="text-green-600 hover:text-green-900 inline-flex items-center"><Truck className="w-4 h-4" /></button>

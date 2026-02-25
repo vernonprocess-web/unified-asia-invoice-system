@@ -130,12 +130,13 @@ app.post('/preview/:type', async (c) => {
 
         const docxBuffer = await object.arrayBuffer();
 
-        // Format items table integers to 2 decimal places explicitly
+        // Format items table integers to 2 decimal places explicitly with thousands separator
+        const formatCurrency = (val: any) => Number(val || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         const formattedItems = (items || []).map((item: any) => ({
             ...item,
-            quantity: Number(item.quantity || 0).toFixed(2),
-            unit_price: type === 'delivery_order' ? '' : Number(item.unit_price || 0).toFixed(2),
-            amount: type === 'delivery_order' ? '' : Number(item.amount || 0).toFixed(2)
+            quantity: Number(item.quantity || 0).toFixed(2), // retain 2 decimal constraint without comma
+            unit_price: type === 'delivery_order' ? '' : formatCurrency(item.unit_price),
+            amount: type === 'delivery_order' ? '' : formatCurrency(item.amount)
         }));
 
         // 1. Construct flattened context mapping based on rules
@@ -155,8 +156,8 @@ app.post('/preview/:type', async (c) => {
             contact_phone: documentData.contact_phone || '',
             validity_days: `${documentData.validity_days ?? 7} Days`,
             items_table: formattedItems, // docxtemplater natively supports arrays for loops over tables via {#items_table}...{/items_table}
-            subtotal: type === 'delivery_order' ? '' : Number(documentData.total || 0).toFixed(2),
-            total: type === 'delivery_order' ? '' : Number(documentData.total || 0).toFixed(2),
+            subtotal: type === 'delivery_order' ? '' : formatCurrency(documentData.total),
+            total: type === 'delivery_order' ? '' : formatCurrency(documentData.total),
             total_in_words: type === 'delivery_order' ? '' : numberToWords(documentData.total || 0),
             payment_term: documentData.payment_terms || '',
             signature: 'Authorized Signature',

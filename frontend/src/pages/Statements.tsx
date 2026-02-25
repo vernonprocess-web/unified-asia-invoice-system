@@ -3,6 +3,7 @@ import { api } from '../api';
 import { Download, Search, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { generateAndDownloadPDF } from '../utils/pdfGenerator';
+import { formatCurrency } from '../utils/formatCurrency';
 
 export default function Statements() {
     const [customers, setCustomers] = useState<any[]>([]);
@@ -114,7 +115,7 @@ export default function Statements() {
                         </div>
                         <div className="text-right">
                             <p className="text-sm text-gray-500">Period: {format(new Date(formData.date_from), 'dd MMM yyyy')} - {format(new Date(formData.date_to), 'dd MMM yyyy')}</p>
-                            <p className="mt-1 font-semibold text-lg text-gray-900">Total Billed: ${totalInvoiced.toFixed(2)}</p>
+                            <p className="mt-1 font-semibold text-lg text-gray-900">Total Billed: ${formatCurrency(totalInvoiced)}</p>
                         </div>
                     </div>
                     <div className="flow-root p-6">
@@ -133,7 +134,7 @@ export default function Statements() {
                                         <td className="py-3 text-sm text-gray-500">{format(new Date(inv.issue_date), 'dd MMM yyyy')}</td>
                                         <td className="py-3 text-sm text-gray-900 font-medium">{inv.invoice_number}</td>
                                         <td className="py-3 text-sm text-gray-500">{format(new Date(inv.due_date), 'dd MMM yyyy')}</td>
-                                        <td className="py-3 text-sm text-gray-900 font-semibold text-right">${inv.total.toFixed(2)}</td>
+                                        <td className="py-3 text-sm text-gray-900 font-semibold text-right">${formatCurrency(inv.total)}</td>
                                     </tr>
                                 ))}
                                 {statementData.invoices.length === 0 && (

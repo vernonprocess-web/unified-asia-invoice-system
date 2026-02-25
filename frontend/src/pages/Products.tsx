@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../api';
 import { Plus, Edit2, Trash2, X } from 'lucide-react';
+import { formatCurrency } from '../utils/formatCurrency';
 
 export default function Products() {
     const [products, setProducts] = useState<any[]>([]);
@@ -145,7 +146,7 @@ export default function Products() {
                                             <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">{product.product_code}</td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-900">{product.name}</td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{product.SKU || '-'}</td>
-                                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-900 font-medium">${product.unit_price.toFixed(2)}</td>
+                                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-900 font-medium">${formatCurrency(product.unit_price)}</td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{product.unit}</td>
                                             <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                                                 <button onClick={() => openEdit(product)} className="text-indigo-600 hover:text-indigo-900 mr-4 inline-flex items-center"><Edit2 className="w-4 h-4" /></button>

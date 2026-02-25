@@ -1,4 +1,5 @@
 import { Page, Text, View, Document, StyleSheet, Image } from '@react-pdf/renderer';
+import { formatCurrency } from '../utils/formatCurrency';
 
 const BACKEND_URL = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace('/api', '') : 'http://localhost:8787';
 
@@ -240,7 +241,7 @@ export const BaseTemplate = ({
                             {columns.map((col, idx) => {
                                 let val = item[col.key];
                                 if (['unit_price', 'amount', 'total'].includes(col.key)) {
-                                    val = `$${parseFloat(val || 0).toFixed(2)}`;
+                                    val = `$${formatCurrency(val)}`;
                                 }
                                 return (
                                     <Text key={idx} style={{ width: col.width, textAlign: (col.align as any) || 'left' }}>
@@ -258,7 +259,7 @@ export const BaseTemplate = ({
                         <View style={styles.totalsBox}>
                             <View style={styles.totalRow}>
                                 <Text style={styles.totalLabel}>{totalLabel || 'Total'}</Text>
-                                <Text style={{ fontFamily: fontBold }}>${totalValue.toFixed(2)}</Text>
+                                <Text style={{ fontFamily: fontBold }}>${formatCurrency(totalValue)}</Text>
                             </View>
                         </View>
                     </View>
