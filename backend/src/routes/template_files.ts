@@ -131,7 +131,7 @@ app.post('/preview/:type', async (c) => {
         const docxBuffer = await object.arrayBuffer();
 
         // Format items table integers to 2 decimal places explicitly with thousands separator
-        const formatCurrency = (val: any) => Number(val || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const formatCurrency = (val: any) => Number(val || 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         const formattedItems = (items || []).map((item: any) => ({
             ...item,
             quantity: Number(item.quantity || 0).toFixed(2), // retain 2 decimal constraint without comma
