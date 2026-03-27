@@ -28,7 +28,15 @@ deliveryOrdersApp.post('/', async (c) => {
     const { invoice_id, customer_id, delivery_date, delivery_status, items, do_number: custom_do_number, delivery_address, contact_person, contact_phone, project_name } = body
 
     try {
-        const do_number = custom_do_number || await generateDocumentNumber(c.env, 'DO', 'delivery_order')
+        const activeCompany = await c.env.DB.prepare(
+            'SELECT id, company_code FROM company_settings WHERE is_active = 1'
+        ).first<{ id: number; company_code: string }>();
+
+        if (!activeCompany) {
+            return c.json({ error: 'No active company profile found.' }, 500);
+        }
+
+        const do_number = custom_do_number || await generateDocumentNumber(c.env, 'DO', 'delivery_order', activeCompany.id, activeCompany.company_code)
 
         const { results } = await c.env.DB.prepare(
             `INSERT INTO delivery_orders (do_number, invoice_id, customer_id, delivery_date, delivery_status, delivery_address, contact_person, contact_phone, project_name) 

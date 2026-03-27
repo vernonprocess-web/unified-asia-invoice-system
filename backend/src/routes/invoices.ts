@@ -25,16 +25,24 @@ invoicesApp.get('/:id', async (c) => {
 
 invoicesApp.post('/', async (c) => {
     const body = await c.req.json()
-    const { quotation_id, customer_id, issue_date, due_date, payment_terms, subtotal, total, notes, items, project_name } = body
+    const { quotation_id, customer_id, issue_date, due_date, payment_terms, subtotal, total, notes, items, project_name, is_gst_applicable, gst_amount } = body
 
     try {
-        const invoice_number = await generateDocumentNumber(c.env, 'INV', 'invoice')
+        const activeCompany = await c.env.DB.prepare(
+            'SELECT id, company_code FROM company_settings WHERE is_active = 1'
+        ).first<{ id: number; company_code: string }>();
+
+        if (!activeCompany) {
+            return c.json({ error: 'No active company profile found.' }, 500);
+        }
+
+        const invoice_number = await generateDocumentNumber(c.env, 'INV', 'invoice', activeCompany.id, activeCompany.company_code)
 
         // Insert invoice
         const { results } = await c.env.DB.prepare(
-            `INSERT INTO invoices (invoice_number, quotation_id, customer_id, issue_date, due_date, payment_terms, subtotal, total, notes, project_name) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`
-        ).bind(invoice_number, quotation_id || null, customer_id, issue_date, due_date, payment_terms, subtotal, total, notes, project_name || null).all()
+            `INSERT INTO invoices (invoice_number, quotation_id, customer_id, issue_date, due_date, payment_terms, subtotal, total, notes, project_name, is_gst_applicable, gst_amount) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`
+        ).bind(invoice_number, quotation_id || null, customer_id, issue_date, due_date, payment_terms, subtotal, total, notes, project_name || null, is_gst_applicable ? 1 : 0, gst_amount || 0).all()
 
         const invoiceId = results[0].id
 
@@ -59,14 +67,14 @@ invoicesApp.post('/', async (c) => {
 invoicesApp.put('/:id', async (c) => {
     const id = c.req.param('id')
     const body = await c.req.json()
-    const { quotation_id, customer_id, issue_date, due_date, payment_terms, subtotal, total, notes, items, project_name } = body
+    const { quotation_id, customer_id, issue_date, due_date, payment_terms, subtotal, total, notes, items, project_name, is_gst_applicable, gst_amount } = body
 
     try {
         await c.env.DB.prepare(
             `UPDATE invoices 
-       SET quotation_id = ?, customer_id = ?, issue_date = ?, due_date = ?, payment_terms = ?, subtotal = ?, total = ?, notes = ?, project_name = ?, updated_at = CURRENT_TIMESTAMP 
+       SET quotation_id = ?, customer_id = ?, issue_date = ?, due_date = ?, payment_terms = ?, subtotal = ?, total = ?, notes = ?, project_name = ?, is_gst_applicable = ?, gst_amount = ?, updated_at = CURRENT_TIMESTAMP 
        WHERE id = ?`
-        ).bind(quotation_id || null, customer_id, issue_date, due_date, payment_terms, subtotal, total, notes, project_name || null, id).run()
+        ).bind(quotation_id || null, customer_id, issue_date, due_date, payment_terms, subtotal, total, notes, project_name || null, is_gst_applicable ? 1 : 0, gst_amount || 0, id).run()
 
         // Replace items
         await c.env.DB.prepare('DELETE FROM invoice_items WHERE invoice_id = ?').bind(id).run()

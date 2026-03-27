@@ -16,7 +16,7 @@ export default function Quotations() {
     const [formData, setFormData] = useState<any>({
         customer_id: '', issue_date: format(new Date(), 'yyyy-MM-dd'),
         expiry_date: format(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd'),
-        validity_days: 7, payment_terms: '30 Days', notes: '', items: []
+        validity_days: 7, payment_terms: '30 Days', notes: '', items: [], is_gst_applicable: false, gst_amount: 0
     });
 
     const calculateExpiryDate = (issueDate: string, days: number) => {
@@ -58,8 +58,10 @@ export default function Quotations() {
             if (formData.items.length === 0) {
                 return alert("Please add at least one item.");
             }
-            const total = calculateTotal(formData.items);
-            const payload = { ...formData, subtotal: total, total: total };
+            const subtotal = calculateTotal(formData.items);
+            const gst_amount = formData.is_gst_applicable ? subtotal * 0.09 : 0;
+            const total = subtotal + gst_amount;
+            const payload = { ...formData, subtotal, gst_amount, total };
 
             if (editingId) {
                 await api.put(`/quotations/${editingId}`, payload);
@@ -98,7 +100,7 @@ export default function Quotations() {
         setFormData({
             customer_id: '', issue_date: format(new Date(), 'yyyy-MM-dd'),
             expiry_date: format(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd'),
-            validity_days: 7, payment_terms: '30 Days', notes: '', items: []
+            validity_days: 7, payment_terms: '30 Days', notes: '', items: [], is_gst_applicable: false, gst_amount: 0
         });
         setEditingId(null);
         setShowForm(true);
@@ -152,6 +154,8 @@ export default function Quotations() {
                 payment_terms: fullQuotation.payment_terms || '30 Days',
                 subtotal: fullQuotation.subtotal,
                 total: fullQuotation.total,
+                is_gst_applicable: fullQuotation.is_gst_applicable,
+                gst_amount: fullQuotation.gst_amount,
                 notes: fullQuotation.notes,
                 items: fullQuotation.items.map((item: any) => ({
                     product_id: item.product_id,
@@ -352,9 +356,33 @@ export default function Quotations() {
                                         <div className="py-4 text-center text-sm text-gray-500 border-b border-gray-200">No items added yet.</div>
                                     )}
                                     <div className="pt-4 flex justify-end">
-                                        <div className="text-right">
-                                            <div className="text-sm text-gray-500">Total Amount</div>
-                                            <div className="text-2xl font-bold text-gray-900">${formatCurrency(totalAmount)}</div>
+                                        <div className="flex flex-col items-end gap-y-2">
+                                            <label className="flex items-center gap-2 cursor-pointer mb-2">
+                                                <input 
+                                                    type="checkbox" 
+                                                    checked={formData.is_gst_applicable || false} 
+                                                    onChange={(e) => setFormData({...formData, is_gst_applicable: e.target.checked})}
+                                                    className="rounded border-gray-300 text-brand focus:ring-brand"
+                                                />
+                                                <span className="text-sm font-medium text-gray-700">Apply 9% GST</span>
+                                            </label>
+                                            
+                                            <div className="text-right w-full flex justify-between items-center gap-10">
+                                                <div className="text-sm font-medium text-gray-500">Subtotal</div>
+                                                <div className="text-lg font-semibold text-gray-900">${formatCurrency(totalAmount)}</div>
+                                            </div>
+
+                                            {formData.is_gst_applicable && (
+                                                <div className="text-right w-full flex justify-between items-center gap-10 pb-2 border-b">
+                                                    <div className="text-sm font-medium text-gray-500">Add: 9% GST</div>
+                                                    <div className="text-lg font-semibold text-gray-900">${formatCurrency(totalAmount * 0.09)}</div>
+                                                </div>
+                                            )}
+
+                                            <div className="text-right w-full flex justify-between items-center gap-10 pt-2">
+                                                <div className="text-sm font-bold text-gray-900">Total Amount</div>
+                                                <div className="text-2xl font-bold text-gray-900">${formatCurrency(totalAmount + (formData.is_gst_applicable ? totalAmount * 0.09 : 0))}</div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

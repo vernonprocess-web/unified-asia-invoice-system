@@ -26,9 +26,10 @@ const app = new Hono<{ Bindings: Bindings }>();
 app.get('/:type', async (c) => {
     try {
         const type = c.req.param('type');
+        const activeCompany = await c.env.DB.prepare('SELECT id FROM company_settings WHERE is_active = 1').first<{ id: number }>();
         const templateFile = await c.env.DB.prepare(
-            `SELECT * FROM document_template_files WHERE template_type = ? ORDER BY id DESC`
-        ).bind(type).first();
+            `SELECT * FROM document_template_files WHERE template_type = ? AND company_id = ? ORDER BY id DESC`
+        ).bind(type, activeCompany?.id).first();
 
         return c.json(templateFile || null);
     } catch (e: any) {
@@ -93,10 +94,12 @@ app.post('/validate-upload', async (c) => {
         await c.env.BUCKET.put(objectName, buffer);
         const fileUrl = `/api/files/${objectName}`;
 
+        const activeCompany = await c.env.DB.prepare('SELECT id FROM company_settings WHERE is_active = 1').first<{ id: number }>();
+
         // Save DB metadata
         const result = await c.env.DB.prepare(
-            `INSERT INTO document_template_files (template_type, file_url, file_name, file_type) VALUES (?, ?, ?, 'docx') RETURNING *`
-        ).bind(templateType as string, fileUrl, file.name).first();
+            `INSERT INTO document_template_files (template_type, file_url, file_name, file_type, company_id) VALUES (?, ?, ?, 'docx', ?) RETURNING *`
+        ).bind(templateType as string, fileUrl, file.name, activeCompany?.id).first();
 
         return c.json({ message: 'Template successfully uploaded and validated', template: result });
 
@@ -112,10 +115,12 @@ app.post('/preview/:type', async (c) => {
         const body = await c.req.json();
         const { documentData, customer, items, settings } = body;
 
+        const activeCompany = await c.env.DB.prepare('SELECT id FROM company_settings WHERE is_active = 1').first<{ id: number }>();
+
         // Fetch latest template from DB
         const templateRecord = await c.env.DB.prepare(
-            `SELECT * FROM document_template_files WHERE template_type = ? ORDER BY id DESC`
-        ).bind(type).first<{ file_url: string, file_name: string }>();
+            `SELECT * FROM document_template_files WHERE template_type = ? AND company_id = ? ORDER BY id DESC`
+        ).bind(type, activeCompany?.id).first<{ file_url: string, file_name: string }>();
 
         if (!templateRecord) {
             return c.json({ error: 'No custom template found for ' + type }, 404);
@@ -156,7 +161,9 @@ app.post('/preview/:type', async (c) => {
             contact_phone: documentData.contact_phone || '',
             validity_days: `${documentData.validity_days ?? 7} Days`,
             items_table: formattedItems, // docxtemplater natively supports arrays for loops over tables via {#items_table}...{/items_table}
-            subtotal: type === 'delivery_order' ? '' : formatCurrency(documentData.total),
+            subtotal: type === 'delivery_order' ? '' : formatCurrency(documentData.subtotal || documentData.total),
+            is_gst_applicable: !!documentData.is_gst_applicable,
+            gst_amount: type === 'delivery_order' ? '' : formatCurrency(documentData.gst_amount || 0),
             total: type === 'delivery_order' ? '' : formatCurrency(documentData.total),
             total_in_words: type === 'delivery_order' ? '' : numberToWords(documentData.total || 0),
             payment_term: documentData.payment_terms || '',

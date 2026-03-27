@@ -143,6 +143,12 @@ export const BaseTemplate = ({
             justifyContent: 'flex-end',
         },
         totalsBox: { width: '40%' },
+        subtotalRow: {
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            paddingVertical: 3,
+            fontSize: templateConfig.table_font_size || 9,
+        },
         totalRow: {
             flexDirection: 'row',
             justifyContent: 'space-between',
@@ -257,6 +263,18 @@ export const BaseTemplate = ({
                 {!hidePricing && totalValue !== undefined && (
                     <View style={styles.totalsArea}>
                         <View style={styles.totalsBox}>
+                            {documentData.is_gst_applicable ? (
+                                <>
+                                    <View style={styles.subtotalRow}>
+                                        <Text>Subtotal</Text>
+                                        <Text>${formatCurrency(documentData.subtotal || totalValue)}</Text>
+                                    </View>
+                                    <View style={styles.subtotalRow}>
+                                        <Text>Add: 9% GST</Text>
+                                        <Text>${formatCurrency(documentData.gst_amount || 0)}</Text>
+                                    </View>
+                                </>
+                            ) : null}
                             <View style={styles.totalRow}>
                                 <Text style={styles.totalLabel}>{totalLabel || 'Total'}</Text>
                                 <Text style={{ fontFamily: fontBold }}>${formatCurrency(totalValue)}</Text>
