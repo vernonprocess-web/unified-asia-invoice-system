@@ -91,6 +91,7 @@ export const generateBaseTemplateContent = async (type: string): Promise<ArrayBu
                 // Totals
                 ...(type === 'delivery_order' ? [] : [
                     new Paragraph({ text: `Subtotal: {{subtotal}}`, alignment: AlignmentType.RIGHT }),
+                    new Paragraph({ text: `{#is_gst_applicable}Add: 9% GST: {{gst_amount}}{/is_gst_applicable}`, alignment: AlignmentType.RIGHT }),
                     new Paragraph({ children: [new TextRun({ text: `Total: {{total}}`, bold: true })], alignment: AlignmentType.RIGHT }),
                     new Paragraph({ text: `Amount in words: {{total_in_words}}` }),
                 ]),

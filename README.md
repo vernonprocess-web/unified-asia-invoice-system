@@ -99,7 +99,7 @@ Before deploying, make sure to update `frontend/src/api.ts` so that `API_BASE_UR
 ```bash
 cd frontend
 npm run build
-npx wrangler pages deploy dist --project-name unified-asia-invoice-system
+npx wrangler pages deploy dist --project-name unified-asia-invoice-frontend
 ```
 
 ## Git Initialization
