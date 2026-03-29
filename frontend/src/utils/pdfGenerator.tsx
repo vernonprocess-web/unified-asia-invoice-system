@@ -14,6 +14,9 @@ const getTemplateComponent = async (
     customer: any,
     items: any[]
 ) => {
+    // Defensive check for settings
+    const safeSettings = Array.isArray(settings) ? settings[0] : (settings || {});
+    
     let templateType = '';
     if (type === 'Quotation') templateType = 'quotation';
     if (type === 'Tax Invoice') templateType = 'invoice';
@@ -29,11 +32,11 @@ const getTemplateComponent = async (
     }
 
     if (type === 'Quotation') {
-        return <QuotationTemplate settings={settings} documentData={documentData} customer={customer} items={items} templateConfig={templateConfig} />;
+        return <QuotationTemplate settings={safeSettings} documentData={documentData} customer={customer} items={items} templateConfig={templateConfig} />;
     } else if (type === 'Tax Invoice') {
-        return <InvoiceTemplate settings={settings} documentData={documentData} customer={customer} items={items} templateConfig={templateConfig} />;
+        return <InvoiceTemplate settings={safeSettings} documentData={documentData} customer={customer} items={items} templateConfig={templateConfig} />;
     } else if (type === 'Delivery Order') {
-        return <DeliveryOrderTemplate settings={settings} documentData={documentData} customer={customer} items={items} templateConfig={templateConfig} />;
+        return <DeliveryOrderTemplate settings={safeSettings} documentData={documentData} customer={customer} items={items} templateConfig={templateConfig} />;
     } else {
         // Statement of Account fallback
         const statementColumns = [
@@ -55,7 +58,7 @@ const getTemplateComponent = async (
             margin_top: 40, margin_bottom: 40, margin_left: 40, margin_right: 40,
             layout_config: { signatureText: 'Authorised Signature', bankDetails: true }
         };
-        return <BaseTemplate type={type} settings={settings} documentData={documentData} customer={customer} items={items} templateConfig={defaultConfig as any} columns={statementColumns} totalLabel="Total Invoiced" totalValue={documentData.totalInvoiced} />;
+        return <BaseTemplate type={type} settings={safeSettings} documentData={documentData} customer={customer} items={items} templateConfig={defaultConfig as any} columns={statementColumns} totalLabel="Total Invoiced" totalValue={documentData.totalInvoiced} />;
     }
 };
 
@@ -80,8 +83,9 @@ export const generateAndUploadPDF = async (
                 const uploadedData = await uploadedRes.json();
 
                 if (uploadedRes.ok && uploadedData && uploadedData.id) {
+                    const safeSettings = Array.isArray(settings) ? settings[0] : (settings || {});
                     // Intercept standard PDF generation and trigger DOCX download instead
-                    const payload = { templateType, settings: settings || {}, documentData: documentData || {}, customer: customer || {}, items: items || [] };
+                    const payload = { templateType, settings: safeSettings, documentData: documentData || {}, customer: customer || {}, items: items || [] };
                     const docxRes = await fetch(`${API_URL}/template-files/preview/${templateType}`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -168,8 +172,9 @@ export const generateAndDownloadPDF = async (
                 const uploadedData = await uploadedRes.json();
 
                 if (uploadedRes.ok && uploadedData && uploadedData.id) {
+                    const safeSettings = Array.isArray(settings) ? settings[0] : (settings || {});
                     // Intercept standard PDF generation and trigger DOCX download instead
-                    const payload = { templateType, settings: settings || {}, documentData: documentData || {}, customer: customer || {}, items: items || [] };
+                    const payload = { templateType, settings: safeSettings, documentData: documentData || {}, customer: customer || {}, items: items || [] };
                     const docxRes = await fetch(`${API_URL}/template-files/preview/${templateType}`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },

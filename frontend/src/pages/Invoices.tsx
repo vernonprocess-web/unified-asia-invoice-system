@@ -4,12 +4,13 @@ import { Plus, Edit2, Trash2, X, Download, Truck, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { generateAndUploadPDF } from '../utils/pdfGenerator';
 import { formatCurrency } from '../utils/formatCurrency';
+import { useCompany } from '../context/CompanyContext';
 
 export default function Invoices() {
     const [invoices, setInvoices] = useState<any[]>([]);
     const [customers, setCustomers] = useState<any[]>([]);
     const [products, setProducts] = useState<any[]>([]);
-    const [settings, setSettings] = useState<any>(null);
+    const { activeCompany } = useCompany();
     const [showForm, setShowForm] = useState(false);
     const [editingId, setEditingId] = useState<number | null>(null);
     const [generatingPdf, setGeneratingPdf] = useState<number | null>(null);
@@ -35,16 +36,14 @@ export default function Invoices() {
 
     const loadData = async () => {
         try {
-            const [iData, cData, pData, sData] = await Promise.all([
+            const [iData, cData, pData] = await Promise.all([
                 api.get('/invoices'),
                 api.get('/customers'),
-                api.get('/products'),
-                api.get('/settings')
+                api.get('/products')
             ]);
             setInvoices(iData);
             setCustomers(cData);
             setProducts(pData);
-            setSettings(sData);
         } catch (e) {
             console.error(e);
         }
@@ -172,7 +171,7 @@ export default function Invoices() {
         try {
             const fullInvoice = await api.get(`/invoices/${inv.id}`);
             const customer = customers.find(c => c.id === inv.customer_id);
-            await generateAndUploadPDF('Tax Invoice', settings, fullInvoice, customer, fullInvoice.items, `/invoices/${inv.id}/pdf`);
+            await generateAndUploadPDF('Tax Invoice', activeCompany, fullInvoice, customer, fullInvoice.items, `/invoices/${inv.id}/pdf`);
             loadData();
         } catch (e) {
             alert("Failed to generate PDF");

@@ -4,6 +4,7 @@ import { Download, Search, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { generateAndDownloadPDF } from '../utils/pdfGenerator';
 import { formatCurrency } from '../utils/formatCurrency';
+import { useCompany } from '../context/CompanyContext';
 
 export default function Statements() {
     const [customers, setCustomers] = useState<any[]>([]);
@@ -15,6 +16,7 @@ export default function Statements() {
     const [statementData, setStatementData] = useState<any>(null);
     const [loading, setLoading] = useState(false);
     const [generatingPdf, setGeneratingPdf] = useState(false);
+    const { activeCompany } = useCompany();
 
     useEffect(() => {
         loadCustomers();
@@ -50,10 +52,9 @@ export default function Statements() {
         if (!statementData) return;
         setGeneratingPdf(true);
         try {
-            const settings = await api.get('/settings');
             const docData = { date_from: formData.date_from, date_to: formData.date_to, totalInvoiced };
 
-            await generateAndDownloadPDF('Statement of Account', settings, docData, statementData.customer, statementData.invoices);
+            await generateAndDownloadPDF('Statement of Account', activeCompany, docData, statementData.customer, statementData.invoices);
         } catch (e) {
             alert("Failed to generate Statement PDF");
         } finally {

@@ -4,12 +4,13 @@ import { Plus, Edit2, Trash2, X, Download, FileText, Loader2 } from 'lucide-reac
 import { format } from 'date-fns';
 import { generateAndUploadPDF } from '../utils/pdfGenerator';
 import { formatCurrency } from '../utils/formatCurrency';
+import { useCompany } from '../context/CompanyContext';
 
 export default function Quotations() {
     const [quotations, setQuotations] = useState<any[]>([]);
     const [customers, setCustomers] = useState<any[]>([]);
     const [products, setProducts] = useState<any[]>([]);
-    const [settings, setSettings] = useState<any>(null);
+    const { activeCompany } = useCompany();
     const [showForm, setShowForm] = useState(false);
     const [editingId, setEditingId] = useState<number | null>(null);
     const [generatingPdf, setGeneratingPdf] = useState<number | null>(null);
@@ -32,16 +33,14 @@ export default function Quotations() {
 
     const loadData = async () => {
         try {
-            const [qData, cData, pData, sData] = await Promise.all([
+            const [qData, cData, pData] = await Promise.all([
                 api.get('/quotations'),
                 api.get('/customers'),
-                api.get('/products'),
-                api.get('/settings')
+                api.get('/products')
             ]);
             setQuotations(qData);
             setCustomers(cData);
             setProducts(pData);
-            setSettings(sData);
         } catch (e) {
             console.error(e);
         }
@@ -179,7 +178,7 @@ export default function Quotations() {
         try {
             const fullQuotation = await api.get(`/quotations/${qt.id}`);
             const customer = customers.find(c => c.id === qt.customer_id);
-            await generateAndUploadPDF('Quotation', settings, fullQuotation, customer, fullQuotation.items, `/quotations/${qt.id}/pdf`);
+            await generateAndUploadPDF('Quotation', activeCompany, fullQuotation, customer, fullQuotation.items, `/quotations/${qt.id}/pdf`);
             loadData(); // To refresh pdf_url
         } catch (e) {
             alert("Failed to generate PDF");

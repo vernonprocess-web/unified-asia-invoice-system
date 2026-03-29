@@ -3,12 +3,13 @@ import { api } from '../api';
 import { Plus, Edit2, Trash2, X, Download, PenTool, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { generateAndUploadPDF } from '../utils/pdfGenerator';
+import { useCompany } from '../context/CompanyContext';
 
 export default function DeliveryOrders() {
     const [deliveryOrders, setDeliveryOrders] = useState<any[]>([]);
     const [customers, setCustomers] = useState<any[]>([]);
     const [products, setProducts] = useState<any[]>([]);
-    const [settings, setSettings] = useState<any>(null);
+    const { activeCompany } = useCompany();
     const [showForm, setShowForm] = useState(false);
     const [editingId, setEditingId] = useState<number | null>(null);
     const [generatingPdf, setGeneratingPdf] = useState<number | null>(null);
@@ -23,16 +24,14 @@ export default function DeliveryOrders() {
 
     const loadData = async () => {
         try {
-            const [doData, cData, pData, sData] = await Promise.all([
+            const [doData, cData, pData] = await Promise.all([
                 api.get('/delivery-orders'),
                 api.get('/customers'),
-                api.get('/products'),
-                api.get('/settings')
+                api.get('/products')
             ]);
             setDeliveryOrders(doData);
             setCustomers(cData);
             setProducts(pData);
-            setSettings(sData);
         } catch (e) {
             console.error(e);
         }
@@ -120,7 +119,7 @@ export default function DeliveryOrders() {
         try {
             const fullDO = await api.get(`/delivery-orders/${doItem.id}`);
             const customer = customers.find(c => c.id === doItem.customer_id);
-            await generateAndUploadPDF('Delivery Order', settings, fullDO, customer, fullDO.items, `/delivery-orders/${doItem.id}/pdf`);
+            await generateAndUploadPDF('Delivery Order', activeCompany, fullDO, customer, fullDO.items, `/delivery-orders/${doItem.id}/pdf`);
             loadData();
         } catch (e) {
             alert("Failed to generate PDF");
