@@ -1,4 +1,4 @@
-import { pdf } from '@react-pdf/renderer';
+import { pdf, Font } from '@react-pdf/renderer';
 import { QuotationTemplate } from '../templates/quotationTemplate';
 import { InvoiceTemplate } from '../templates/invoiceTemplate';
 import { DeliveryOrderTemplate } from '../templates/deliveryOrderTemplate';
@@ -6,6 +6,15 @@ import { BaseTemplate } from '../templates/baseTemplate';
 import { api } from '../api';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8787/api';
+
+// Register Inter font
+Font.register({
+    family: 'Inter',
+    fonts: [
+        { src: `${window.location.origin}/fonts/Inter-Regular.ttf` },
+        { src: `${window.location.origin}/fonts/Inter-Bold.ttf`, fontWeight: 'bold' }
+    ]
+});
 
 const getTemplateComponent = async (
     type: 'Quotation' | 'Tax Invoice' | 'Delivery Order' | 'Statement of Account',
