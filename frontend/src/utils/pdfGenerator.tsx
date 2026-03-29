@@ -10,10 +10,12 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8787/api';
 // Register Inter font
 Font.register({
     family: 'Inter',
-    fonts: [
-        { src: `${window.location.origin}/fonts/Inter-Regular.ttf` },
-        { src: `${window.location.origin}/fonts/Inter-Bold.ttf`, fontWeight: 'bold' }
-    ]
+    src: `${window.location.origin}/fonts/Inter-Regular.ttf`
+});
+
+Font.register({
+    family: 'Inter-Bold',
+    src: `${window.location.origin}/fonts/Inter-Bold.ttf`
 });
 
 const getTemplateComponent = async (
