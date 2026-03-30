@@ -25,7 +25,7 @@ quotationsApp.get('/:id', async (c) => {
 
 quotationsApp.post('/', async (c) => {
     const body = await c.req.json()
-    const { customer_id, issue_date, expiry_date, validity_days, payment_terms, subtotal, total, notes, items, is_gst_applicable, gst_amount } = body
+    const { customer_id, issue_date, expiry_date, validity_days, payment_terms, subtotal, total, notes, items, is_gst_applicable, gst_amount, project_name } = body
 
     try {
         const activeCompany = await c.env.DB.prepare(
@@ -38,11 +38,10 @@ quotationsApp.post('/', async (c) => {
 
         const quotation_number = await generateDocumentNumber(c.env, 'Q', 'quotation', activeCompany.id, activeCompany.company_code)
 
-        // Insert quotation
         const { results } = await c.env.DB.prepare(
-            `INSERT INTO quotations (quotation_number, customer_id, issue_date, expiry_date, validity_days, payment_terms, subtotal, total, notes, is_gst_applicable, gst_amount) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`
-        ).bind(quotation_number, customer_id, issue_date, expiry_date, validity_days, payment_terms, subtotal, total, notes, is_gst_applicable ? 1 : 0, gst_amount || 0).all()
+            `INSERT INTO quotations (quotation_number, customer_id, issue_date, expiry_date, validity_days, payment_terms, subtotal, total, notes, is_gst_applicable, gst_amount, project_name) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`
+        ).bind(quotation_number, customer_id, issue_date, expiry_date, validity_days, payment_terms, subtotal, total, notes, is_gst_applicable ? 1 : 0, gst_amount || 0, project_name || '').all()
 
         const quotationId = results[0].id
 
@@ -67,14 +66,14 @@ quotationsApp.post('/', async (c) => {
 quotationsApp.put('/:id', async (c) => {
     const id = c.req.param('id')
     const body = await c.req.json()
-    const { customer_id, issue_date, expiry_date, validity_days, payment_terms, subtotal, total, notes, items, is_gst_applicable, gst_amount } = body
+    const { customer_id, issue_date, expiry_date, validity_days, payment_terms, subtotal, total, notes, items, is_gst_applicable, gst_amount, project_name } = body
 
     try {
         await c.env.DB.prepare(
             `UPDATE quotations 
-       SET customer_id = ?, issue_date = ?, expiry_date = ?, validity_days = ?, payment_terms = ?, subtotal = ?, total = ?, notes = ?, is_gst_applicable = ?, gst_amount = ?, updated_at = CURRENT_TIMESTAMP 
+       SET customer_id = ?, issue_date = ?, expiry_date = ?, validity_days = ?, payment_terms = ?, subtotal = ?, total = ?, notes = ?, is_gst_applicable = ?, gst_amount = ?, project_name = ?, updated_at = CURRENT_TIMESTAMP 
        WHERE id = ?`
-        ).bind(customer_id, issue_date, expiry_date, validity_days, payment_terms, subtotal, total, notes, is_gst_applicable ? 1 : 0, gst_amount || 0, id).run()
+        ).bind(customer_id, issue_date, expiry_date, validity_days, payment_terms, subtotal, total, notes, is_gst_applicable ? 1 : 0, gst_amount || 0, project_name || '', id).run()
 
         // Replace items
         await c.env.DB.prepare('DELETE FROM quotation_items WHERE quotation_id = ?').bind(id).run()

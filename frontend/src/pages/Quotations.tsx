@@ -15,9 +15,16 @@ export default function Quotations() {
     const [editingId, setEditingId] = useState<number | null>(null);
     const [generatingPdf, setGeneratingPdf] = useState<number | null>(null);
     const [formData, setFormData] = useState<any>({
-        customer_id: '', issue_date: format(new Date(), 'yyyy-MM-dd'),
+        customer_id: '', 
+        issue_date: format(new Date(), 'yyyy-MM-dd'),
         expiry_date: format(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd'),
-        validity_days: 7, payment_terms: '30 Days', notes: '', items: [], is_gst_applicable: false, gst_amount: 0
+        validity_days: 7, 
+        payment_terms: '30 Days', 
+        project_name: '',
+        notes: '', 
+        items: [], 
+        is_gst_applicable: false, 
+        gst_amount: 0
     });
 
     const calculateExpiryDate = (issueDate: string, days: number) => {
@@ -97,9 +104,16 @@ export default function Quotations() {
 
     const openCreate = () => {
         setFormData({
-            customer_id: '', issue_date: format(new Date(), 'yyyy-MM-dd'),
+            customer_id: '', 
+            issue_date: format(new Date(), 'yyyy-MM-dd'),
             expiry_date: format(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd'),
-            validity_days: 7, payment_terms: '30 Days', notes: '', items: [], is_gst_applicable: false, gst_amount: 0
+            validity_days: 7, 
+            payment_terms: '30 Days', 
+            project_name: '',
+            notes: '', 
+            items: [], 
+            is_gst_applicable: false, 
+            gst_amount: 0
         });
         setEditingId(null);
         setShowForm(true);
@@ -148,6 +162,7 @@ export default function Quotations() {
             // Map quotation data to new invoice payload
             const invoicePayload = {
                 customer_id: fullQuotation.customer_id,
+                project_name: fullQuotation.project_name || '',
                 issue_date: format(new Date(), 'yyyy-MM-dd'),
                 due_date: format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd'),
                 payment_terms: fullQuotation.payment_terms || '30 Days',
@@ -222,6 +237,16 @@ export default function Quotations() {
                                         <option value="">Select a customer</option>
                                         {customers.map(c => <option key={c.id} value={c.id}>{c.company_name || c.customer_name} ({c.customer_code})</option>)}
                                     </select>
+                                </div>
+                                <div className="sm:col-span-2">
+                                    <label className="block text-sm font-medium text-gray-900">Project / Site Name</label>
+                                    <input 
+                                        type="text" 
+                                        value={formData.project_name || ''} 
+                                        onChange={e => setFormData({ ...formData, project_name: e.target.value })} 
+                                        className="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-brand sm:text-sm sm:leading-6 px-3" 
+                                        placeholder="Optional project/site location" 
+                                    />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-900">Quotation Date</label>
