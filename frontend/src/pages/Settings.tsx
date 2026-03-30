@@ -13,7 +13,6 @@ import {
     ChevronRight,
     Palette
 } from 'lucide-react';
-import { PlaceholderRegistry } from '../components/PlaceholderRegistry';
 import { useCompany } from '../context/CompanyContext';
 import type { Company } from '../context/CompanyContext';
 
@@ -24,20 +23,17 @@ export default function Settings() {
     const [editingCompanyId, setEditingCompanyId] = useState<number | null>(activeCompany?.id || null);
     const [formData, setFormData] = useState<Partial<Company>>({});
     const [isSaving, setIsSaving] = useState(false);
-    const [viewingRegistry, setViewingRegistry] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
 
-    // Template Upload States
     const [uploadingState, setUploadingState] = useState<{ [key: string]: boolean }>({});
-    const [templateFile, setTemplateFile] = useState<{ [key: string]: any }>({});
 
     useEffect(() => {
         if (editingCompanyId) {
             const company = companies.find(c => c.id === editingCompanyId);
             if (company) {
                 setFormData(company);
-                loadCompanyTemplates(company.id);
+                loadCompanyTemplates();
             }
         } else {
             // New company defaults
@@ -49,7 +45,7 @@ export default function Settings() {
         }
     }, [editingCompanyId, companies]);
 
-    const loadCompanyTemplates = async (companyId: number) => {
+    const loadCompanyTemplates = async () => {
         // The backend GET /:type now uses the active company from the DB.
         // To properly manage templates for NON-ACTIVE companies during edit,
         // we might need a more specific backend endpoint.
@@ -169,9 +165,6 @@ export default function Settings() {
         }
     };
 
-    if (viewingRegistry) {
-        return <PlaceholderRegistry onClose={() => setViewingRegistry(false)} />;
-    }
 
     return (
         <div className="max-w-5xl mx-auto pb-20">
@@ -436,14 +429,6 @@ export default function Settings() {
                                         <h3 className="text-xl font-bold text-gray-900">Document Templates</h3>
                                         <p className="text-sm text-gray-500">Managed for the currently active profile.</p>
                                     </div>
-                                    <button
-                                        type="button"
-                                        onClick={() => setViewingRegistry(true)}
-                                        className="inline-flex items-center px-5 py-2.5 bg-white text-gray-800 rounded-xl shadow-md hover:shadow-lg transition-all font-bold border"
-                                    >
-                                        <FileCode2 className="w-5 h-5 mr-2" />
-                                        Placeholder Registry
-                                    </button>
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
