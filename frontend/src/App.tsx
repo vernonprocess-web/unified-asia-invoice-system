@@ -11,6 +11,7 @@ import DeliveryOrders from './pages/DeliveryOrders'
 
 import Statements from './pages/Statements'
 import Dashboard from './pages/Dashboard'
+import Placeholders from './pages/Placeholders'
 
 import { CompanyProvider } from './context/CompanyContext'
 
@@ -28,6 +29,7 @@ function App() {
             <Route path="delivery-orders" element={<DeliveryOrders />} />
             <Route path="statements" element={<Statements />} />
             <Route path="settings" element={<Settings />} />
+            <Route path="placeholders" element={<Placeholders />} />
           </Route>
         </Routes>
       </Router>

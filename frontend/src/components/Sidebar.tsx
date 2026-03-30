@@ -11,7 +11,8 @@ import {
     Settings,
     ChevronDown,
     Building2,
-    Plus
+    Plus,
+    Info
 } from 'lucide-react';
 import { useCompany } from '../context/CompanyContext';
 
@@ -24,6 +25,7 @@ const navigation = [
     { name: 'Delivery Orders', href: '/delivery-orders', icon: Truck },
     { name: 'Statements', href: '/statements', icon: Receipt },
     { name: 'Settings', href: '/settings', icon: Settings },
+    { name: 'Placeholders', href: '/placeholders', icon: Info },
 ];
 
 export default function Sidebar() {
