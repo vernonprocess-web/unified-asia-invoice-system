@@ -150,6 +150,7 @@ export default function Invoices() {
                 invoice_id: fullInvoice.id,
                 customer_id: fullInvoice.customer_id,
                 project_name: fullInvoice.project_name,
+                notes: fullInvoice.notes,
                 delivery_date: format(new Date(), 'yyyy-MM-dd'),
                 delivery_status: 'Pending',
                 items: fullInvoice.items.map((item: any) => ({

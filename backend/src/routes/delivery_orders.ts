@@ -25,7 +25,7 @@ deliveryOrdersApp.get('/:id', async (c) => {
 
 deliveryOrdersApp.post('/', async (c) => {
     const body = await c.req.json()
-    const { invoice_id, customer_id, delivery_date, delivery_status, items, do_number: custom_do_number, delivery_address, contact_person, contact_phone, project_name } = body
+    const { invoice_id, customer_id, delivery_date, delivery_status, items, do_number: custom_do_number, delivery_address, contact_person, contact_phone, project_name, notes } = body
 
     try {
         const activeCompany = await c.env.DB.prepare(
@@ -39,9 +39,9 @@ deliveryOrdersApp.post('/', async (c) => {
         const do_number = custom_do_number || await generateDocumentNumber(c.env, 'DO', 'delivery_order', activeCompany.id, activeCompany.company_code)
 
         const { results } = await c.env.DB.prepare(
-            `INSERT INTO delivery_orders (do_number, invoice_id, customer_id, delivery_date, delivery_status, delivery_address, contact_person, contact_phone, project_name) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`
-        ).bind(do_number, invoice_id || null, customer_id, delivery_date, delivery_status || 'Pending', delivery_address || null, contact_person || null, contact_phone || null, project_name || null).all()
+            `INSERT INTO delivery_orders (do_number, invoice_id, customer_id, delivery_date, delivery_status, delivery_address, contact_person, contact_phone, project_name, notes) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`
+        ).bind(do_number, invoice_id || null, customer_id, delivery_date, delivery_status || 'Pending', delivery_address || null, contact_person || null, contact_phone || null, project_name || null, notes || null).all()
 
         const doId = results[0].id
 
@@ -65,14 +65,14 @@ deliveryOrdersApp.post('/', async (c) => {
 deliveryOrdersApp.put('/:id', async (c) => {
     const id = c.req.param('id')
     const body = await c.req.json()
-    const { invoice_id, customer_id, delivery_date, delivery_status, items, do_number, delivery_address, contact_person, contact_phone, project_name } = body
+    const { invoice_id, customer_id, delivery_date, delivery_status, items, do_number, delivery_address, contact_person, contact_phone, project_name, notes } = body
 
     try {
         await c.env.DB.prepare(
             `UPDATE delivery_orders 
-       SET do_number = ?, invoice_id = ?, customer_id = ?, delivery_date = ?, delivery_status = ?, delivery_address = ?, contact_person = ?, contact_phone = ?, project_name = ?, updated_at = CURRENT_TIMESTAMP 
+       SET do_number = ?, invoice_id = ?, customer_id = ?, delivery_date = ?, delivery_status = ?, delivery_address = ?, contact_person = ?, contact_phone = ?, project_name = ?, notes = ?, updated_at = CURRENT_TIMESTAMP 
        WHERE id = ?`
-        ).bind(do_number || id, invoice_id || null, customer_id, delivery_date, delivery_status || 'Pending', delivery_address || null, contact_person || null, contact_phone || null, project_name || null, id).run()
+        ).bind(do_number || id, invoice_id || null, customer_id, delivery_date, delivery_status || 'Pending', delivery_address || null, contact_person || null, contact_phone || null, project_name || null, notes || null, id).run()
 
         await c.env.DB.prepare('DELETE FROM delivery_order_items WHERE do_id = ?').bind(id).run()
 

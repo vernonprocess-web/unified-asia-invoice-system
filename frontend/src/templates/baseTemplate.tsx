@@ -179,6 +179,19 @@ export const BaseTemplate = ({
             borderTopColor: '#000',
             paddingTop: 5,
             textAlign: 'center',
+        },
+        notesArea: {
+            marginTop: 20,
+            marginBottom: 20,
+        },
+        notesHeader: {
+            fontFamily: fontBold,
+            fontSize: (templateConfig.body_font_size || 10) + 2,
+            marginBottom: 5,
+        },
+        notesText: {
+            fontSize: templateConfig.body_font_size || 10,
+            lineHeight: 1.4,
         }
     });
 
@@ -280,6 +293,14 @@ export const BaseTemplate = ({
                                 <Text style={{ fontFamily: fontBold }}>${formatCurrency(totalValue)}</Text>
                             </View>
                         </View>
+                    </View>
+                )}
+
+                {/* NOTES / REMARKS */}
+                {documentData.notes && (
+                    <View style={styles.notesArea}>
+                        <Text style={styles.notesHeader}>Notes / Remarks</Text>
+                        <Text style={styles.notesText}>{documentData.notes}</Text>
                     </View>
                 )}
 

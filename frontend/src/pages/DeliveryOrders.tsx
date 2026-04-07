@@ -15,7 +15,7 @@ export default function DeliveryOrders() {
     const [generatingPdf, setGeneratingPdf] = useState<number | null>(null);
     const [formData, setFormData] = useState<any>({
         customer_id: '', delivery_date: format(new Date(), 'yyyy-MM-dd'),
-        delivery_status: 'Pending', delivery_address: '', contact_person: '', contact_phone: '', project_name: '', items: []
+        delivery_status: 'Pending', delivery_address: '', contact_person: '', contact_phone: '', project_name: '', notes: '', items: []
     });
 
     useEffect(() => {
@@ -80,7 +80,7 @@ export default function DeliveryOrders() {
     const openCreate = () => {
         setFormData({
             do_number: '', customer_id: '', delivery_date: format(new Date(), 'yyyy-MM-dd'),
-            delivery_status: 'Pending', delivery_address: '', contact_person: '', contact_phone: '', project_name: '', items: []
+            delivery_status: 'Pending', delivery_address: '', contact_person: '', contact_phone: '', project_name: '', notes: '', items: []
         });
         setEditingId(null);
         setShowForm(true);
@@ -242,6 +242,11 @@ export default function DeliveryOrders() {
                                         <div className="py-4 text-center text-sm text-gray-500 border-b border-gray-200">No items added yet.</div>
                                     )}
                                 </div>
+                            </div>
+
+                            <div className="mb-8">
+                                <label className="block text-sm font-medium text-gray-900">Notes / Remarks</label>
+                                <textarea rows={4} value={formData.notes || ''} onChange={e => setFormData({ ...formData, notes: e.target.value })} className="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-brand sm:text-sm sm:leading-6 px-3" placeholder="Optional remarks" />
                             </div>
 
                             <div className="mt-8 flex justify-end gap-x-3 border-t pt-5">
