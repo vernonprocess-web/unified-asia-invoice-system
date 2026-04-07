@@ -98,7 +98,8 @@ export const replacePlaceholders = async (docxBuffer: ArrayBuffer, dataContext: 
     const expressionParser = (tag: string) => {
         return {
             get: (scope: any) => {
-                const val = scope[tag];
+                const trimmedTag = tag.trim();
+                const val = scope[trimmedTag];
                 return val === undefined || val === null ? "" : val;
             }
         };
