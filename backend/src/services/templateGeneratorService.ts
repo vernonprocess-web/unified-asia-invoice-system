@@ -97,6 +97,8 @@ export const generateBaseTemplateContent = async (type: string): Promise<ArrayBu
                 ]),
 
                 new Paragraph({ text: "" }),
+                new Paragraph({ children: [new TextRun({ text: "Notes / Remarks", bold: true, size: 24 })] }),
+                new Paragraph({ text: "{{notes}}" }),
                 new Paragraph({ text: "" }),
                 new Paragraph({ text: "" }),
 
