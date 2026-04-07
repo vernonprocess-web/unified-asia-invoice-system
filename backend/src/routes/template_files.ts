@@ -167,6 +167,7 @@ app.post('/preview/:type', async (c) => {
             total: type === 'delivery_order' ? '' : formatCurrency(documentData.total),
             total_in_words: type === 'delivery_order' ? '' : numberToWords(documentData.total || 0),
             payment_term: documentData.payment_terms || '',
+            notes: documentData.notes || '',
             signature: 'Authorized Signature',
 
             // Customer
