@@ -1,0 +1,3 @@
+-- Add Notes / Remarks Placeholder
+INSERT INTO placeholder_registry (placeholder_name, display_name, data_source_table, data_source_field, template_types_allowed) VALUES 
+('notes', 'Notes / Remarks', 'system', 'notes', '["quotation", "invoice", "delivery_order"]');
