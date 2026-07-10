@@ -6,6 +6,7 @@ export default function Customers() {
     const [customers, setCustomers] = useState<any[]>([]);
     const [showForm, setShowForm] = useState(false);
     const [editingId, setEditingId] = useState<number | null>(null);
+    const [customerNames, setCustomerNames] = useState<string[]>(['']);
     const [formData, setFormData] = useState({
         customer_code: '', customer_name: '', company_name: '', UEN: '',
         billing_address: '', delivery_address: '', phone: '', email: ''
@@ -26,11 +27,17 @@ export default function Customers() {
 
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
+        const finalCustomerName = customerNames.map(n => n.trim()).filter(Boolean).join(', ');
+        if (!finalCustomerName) {
+            alert("At least one Customer Name is required.");
+            return;
+        }
+        const submissionData = { ...formData, customer_name: finalCustomerName };
         try {
             if (editingId) {
-                await api.put(`/customers/${editingId}`, formData);
+                await api.put(`/customers/${editingId}`, submissionData);
             } else {
-                await api.post('/customers', formData);
+                await api.post('/customers', submissionData);
             }
             setShowForm(false);
             loadCustomers();
@@ -51,6 +58,7 @@ export default function Customers() {
 
     const openEdit = (customer: any) => {
         setFormData(customer);
+        setCustomerNames(customer.customer_name ? customer.customer_name.split(',').map((n: string) => n.trim()) : ['']);
         setEditingId(customer.id);
         setShowForm(true);
     };
@@ -60,6 +68,7 @@ export default function Customers() {
             customer_code: '', customer_name: '', company_name: '', UEN: '',
             billing_address: '', delivery_address: '', phone: '', email: ''
         });
+        setCustomerNames(['']);
         setEditingId(null);
         setShowForm(true);
     };
@@ -97,9 +106,46 @@ export default function Customers() {
                                     <label className="block text-sm font-medium text-gray-900">Customer Code</label>
                                     <input required type="text" value={formData.customer_code} onChange={e => setFormData({ ...formData, customer_code: e.target.value })} className="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-brand sm:text-sm sm:leading-6 px-3" />
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-900">Customer Name</label>
-                                    <input required type="text" value={formData.customer_name} onChange={e => setFormData({ ...formData, customer_name: e.target.value })} className="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-brand sm:text-sm sm:leading-6 px-3" />
+                                <div className="sm:col-span-2">
+                                    <label className="block text-sm font-medium text-gray-900 mb-2">Customer Names</label>
+                                    <div className="space-y-2">
+                                        {customerNames.map((name, index) => (
+                                            <div key={index} className="flex gap-2 items-center">
+                                                <input
+                                                    required
+                                                    type="text"
+                                                    value={name}
+                                                    onChange={e => {
+                                                        const newNames = [...customerNames];
+                                                        newNames[index] = e.target.value;
+                                                        setCustomerNames(newNames);
+                                                    }}
+                                                    placeholder="Customer Name"
+                                                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-brand sm:text-sm sm:leading-6 px-3"
+                                                />
+                                                {customerNames.length > 1 && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            const newNames = customerNames.filter((_, i) => i !== index);
+                                                            setCustomerNames(newNames);
+                                                        }}
+                                                        className="text-red-600 hover:text-red-900 p-1.5 rounded-md hover:bg-red-50 border border-transparent"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => setCustomerNames([...customerNames, ''])}
+                                        className="mt-2 inline-flex items-center rounded-md bg-white px-2.5 py-1.5 text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+                                    >
+                                        <Plus className="-ml-0.5 mr-1.5 h-4 w-4" />
+                                        Add Name
+                                    </button>
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-900">Company Name</label>
