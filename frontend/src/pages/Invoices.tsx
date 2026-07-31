@@ -101,7 +101,7 @@ export default function Invoices() {
         setFormData({
             customer_id: '', issue_date: format(new Date(), 'yyyy-MM-dd'),
             due_date: format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd'),
-            payment_terms: '30 Days', project_name: '', notes: '', items: [], is_gst_applicable: false, gst_amount: 0
+            payment_terms: '30 Days', project_name: '', notes: '', items: [], is_gst_applicable: false, gst_amount: 0, po_reference: ''
         });
         setEditingId(null);
         setShowForm(true);
@@ -267,6 +267,16 @@ export default function Invoices() {
                                             />
                                         )}
                                     </div>
+                                </div>
+                                <div className="sm:col-span-2">
+                                    <label className="block text-sm font-medium text-gray-900">PO Reference Number</label>
+                                    <input
+                                        type="text"
+                                        value={formData.po_reference || ''}
+                                        onChange={e => setFormData({ ...formData, po_reference: e.target.value })}
+                                        className="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-brand sm:text-sm sm:leading-6 px-3"
+                                        placeholder="Optional PO number"
+                                    />
                                 </div>
                             </div>
 

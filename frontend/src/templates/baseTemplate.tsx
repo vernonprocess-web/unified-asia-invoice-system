@@ -243,6 +243,12 @@ export const BaseTemplate = ({
                                 <Text style={styles.metaValue}>{documentData.payment_terms}</Text>
                             </View>
                         )}
+                        {documentData.po_reference && (
+                            <View style={styles.metaRow}>
+                                <Text style={styles.metaLabel}>PO Ref:</Text>
+                                <Text style={styles.metaValue}>{documentData.po_reference}</Text>
+                            </View>
+                        )}
                     </View>
                 </View>
 

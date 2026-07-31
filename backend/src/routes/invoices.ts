@@ -25,7 +25,7 @@ invoicesApp.get('/:id', async (c) => {
 
 invoicesApp.post('/', async (c) => {
     const body = await c.req.json()
-    const { quotation_id, customer_id, issue_date, due_date, payment_terms, subtotal, total, notes, items, project_name, is_gst_applicable, gst_amount } = body
+    const { quotation_id, customer_id, issue_date, due_date, payment_terms, subtotal, total, notes, items, project_name, is_gst_applicable, gst_amount, po_reference } = body
 
     try {
         const activeCompany = await c.env.DB.prepare(
@@ -40,9 +40,9 @@ invoicesApp.post('/', async (c) => {
 
         // Insert invoice
         const { results } = await c.env.DB.prepare(
-            `INSERT INTO invoices (invoice_number, quotation_id, customer_id, issue_date, due_date, payment_terms, subtotal, total, notes, project_name, is_gst_applicable, gst_amount) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`
-        ).bind(invoice_number, quotation_id || null, customer_id, issue_date, due_date, payment_terms, subtotal, total, notes, project_name || null, is_gst_applicable ? 1 : 0, gst_amount || 0).all()
+            `INSERT INTO invoices (invoice_number, quotation_id, customer_id, issue_date, due_date, payment_terms, subtotal, total, notes, project_name, is_gst_applicable, gst_amount, po_reference) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`
+        ).bind(invoice_number, quotation_id || null, customer_id, issue_date, due_date, payment_terms, subtotal, total, notes, project_name || null, is_gst_applicable ? 1 : 0, gst_amount || 0, po_reference || null).all()
 
         const invoiceId = results[0].id
 
@@ -67,14 +67,14 @@ invoicesApp.post('/', async (c) => {
 invoicesApp.put('/:id', async (c) => {
     const id = c.req.param('id')
     const body = await c.req.json()
-    const { quotation_id, customer_id, issue_date, due_date, payment_terms, subtotal, total, notes, items, project_name, is_gst_applicable, gst_amount } = body
+    const { quotation_id, customer_id, issue_date, due_date, payment_terms, subtotal, total, notes, items, project_name, is_gst_applicable, gst_amount, po_reference } = body
 
     try {
         await c.env.DB.prepare(
             `UPDATE invoices 
-       SET quotation_id = ?, customer_id = ?, issue_date = ?, due_date = ?, payment_terms = ?, subtotal = ?, total = ?, notes = ?, project_name = ?, is_gst_applicable = ?, gst_amount = ?, updated_at = CURRENT_TIMESTAMP 
+       SET quotation_id = ?, customer_id = ?, issue_date = ?, due_date = ?, payment_terms = ?, subtotal = ?, total = ?, notes = ?, project_name = ?, is_gst_applicable = ?, gst_amount = ?, po_reference = ?, updated_at = CURRENT_TIMESTAMP 
        WHERE id = ?`
-        ).bind(quotation_id || null, customer_id, issue_date, due_date, payment_terms, subtotal, total, notes, project_name || null, is_gst_applicable ? 1 : 0, gst_amount || 0, id).run()
+        ).bind(quotation_id || null, customer_id, issue_date, due_date, payment_terms, subtotal, total, notes, project_name || null, is_gst_applicable ? 1 : 0, gst_amount || 0, po_reference || null, id).run()
 
         // Replace items
         await c.env.DB.prepare('DELETE FROM invoice_items WHERE invoice_id = ?').bind(id).run()

@@ -160,6 +160,7 @@ app.post('/preview/:type', async (c) => {
             contact_person: documentData.contact_person || '',
             contact_phone: documentData.contact_phone || '',
             validity_days: `${documentData.validity_days ?? 7} Days`,
+            po_reference: documentData.po_reference || '',
             items_table: formattedItems, // docxtemplater natively supports arrays for loops over tables via {#items_table}...{/items_table}
             subtotal: type === 'delivery_order' ? '' : formatCurrency(documentData.subtotal || documentData.total),
             is_gst_applicable: !!documentData.is_gst_applicable,
