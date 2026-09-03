@@ -56,7 +56,7 @@ export default function Placeholders() {
             const name = p.placeholder_name;
             if (name.includes('company_')) categories['Company Details'].push(p);
             else if (name.includes('customer_')) categories['Customer Details'].push(p);
-            else if (['items_table', 'description', 'quantity', 'unit_price', 'amount'].includes(name)) categories['Items Table'].push(p);
+            else if (['items_table', 'no', 'item_no', 'description', 'quantity', 'unit_price', 'amount'].includes(name)) categories['Items Table'].push(p);
             else if (['subtotal', 'total', 'gst_amount', 'total_in_words', 'is_gst_applicable'].includes(name)) categories['Financials'].push(p);
             else if (['delivery_date', 'delivery_address', 'contact_person', 'contact_phone'].includes(name)) categories['Delivery & Contacts'].push(p);
             else categories['System & Dates'].push(p);

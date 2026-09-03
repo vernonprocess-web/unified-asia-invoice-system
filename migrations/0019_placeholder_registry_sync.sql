@@ -31,6 +31,8 @@ INSERT INTO placeholder_registry (placeholder_name, display_name, data_source_ta
 -- Items Table (Docxtemplater Loop)
 INSERT INTO placeholder_registry (placeholder_name, display_name, data_source_table, data_source_field, template_types_allowed) VALUES 
 ('items_table', 'Items Table (Start Loop)', 'system', 'items_table', '["quotation", "invoice", "delivery_order"]'),
+('no', 'Item Row Number (1, 2, 3...)', 'system', 'no', '["quotation", "invoice", "delivery_order"]'),
+('item_no', 'Item Row Number Alias (1, 2, 3...)', 'system', 'item_no', '["quotation", "invoice", "delivery_order"]'),
 ('description', 'Item Description (Inside Table)', 'system', 'description', '["quotation", "invoice", "delivery_order"]'),
 ('quantity', 'Item Quantity (Inside Table)', 'system', 'quantity', '["quotation", "invoice", "delivery_order"]'),
 ('unit_price', 'Item Unit Price (Inside Table)', 'system', 'unit_price', '["quotation", "invoice"]'),

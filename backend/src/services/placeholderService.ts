@@ -62,7 +62,7 @@ export const validatePlaceholders = async (env: Bindings, placeholders: string[]
         p = p.replace(/^#/, '').replace(/^\//, '');
 
         // Whitelist array-level properties which aren't in the top-level scalar mapping schema
-        const arrayProperties = ['items_table', 'description', 'quantity', 'unit_price', 'amount'];
+        const arrayProperties = ['items_table', 'no', 'item_no', 'description', 'quantity', 'unit_price', 'amount'];
         if (arrayProperties.includes(p)) {
             results.push({ placeholder: p, valid: true });
             continue;

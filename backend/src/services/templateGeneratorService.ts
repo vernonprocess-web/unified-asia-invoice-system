@@ -64,6 +64,7 @@ export const generateBaseTemplateContent = async (type: string): Promise<ArrayBu
                         // Header
                         new TableRow({
                             children: [
+                                new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "No.", bold: true })] })] }),
                                 new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Description", bold: true })] })] }),
                                 new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Qty", bold: true })], alignment: AlignmentType.CENTER })] }),
                                 ...(type === 'delivery_order' ? [] : [
@@ -75,7 +76,8 @@ export const generateBaseTemplateContent = async (type: string): Promise<ArrayBu
                         // Loop Start
                         new TableRow({
                             children: [
-                                new TableCell({ children: [new Paragraph({ text: "{{#items_table}}{{description}}" })] }),
+                                new TableCell({ children: [new Paragraph({ text: "{{#items_table}}{{no}}" })] }),
+                                new TableCell({ children: [new Paragraph({ text: "{{description}}" })] }),
                                 new TableCell({ children: [new Paragraph({ text: type === 'delivery_order' ? "{{quantity}}{{/items_table}}" : "{{quantity}}", alignment: AlignmentType.CENTER })] }),
                                 ...(type === 'delivery_order' ? [] : [
                                     new TableCell({ children: [new Paragraph({ text: "{{unit_price}}", alignment: AlignmentType.RIGHT })] }),

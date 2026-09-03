@@ -137,8 +137,10 @@ app.post('/preview/:type', async (c) => {
 
         // Format items table integers to 2 decimal places explicitly with thousands separator
         const formatCurrency = (val: any) => Number(val || 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-        const formattedItems = (items || []).map((item: any) => ({
+        const formattedItems = (items || []).map((item: any, idx: number) => ({
             ...item,
+            no: idx + 1,
+            item_no: idx + 1,
             quantity: Number(item.quantity || 0).toFixed(2), // retain 2 decimal constraint without comma
             unit_price: type === 'delivery_order' ? '' : formatCurrency(item.unit_price),
             amount: type === 'delivery_order' ? '' : formatCurrency(item.amount)
