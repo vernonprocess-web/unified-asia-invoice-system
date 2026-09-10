@@ -5,6 +5,7 @@ import { format } from 'date-fns';
 import { generateAndUploadPDF } from '../utils/pdfGenerator';
 import { formatCurrency } from '../utils/formatCurrency';
 import { useCompany } from '../context/CompanyContext';
+import { AutoResizeTextarea } from '../components/AutoResizeTextarea';
 
 export default function Invoices() {
     const [invoices, setInvoices] = useState<any[]>([]);
@@ -306,9 +307,9 @@ export default function Invoices() {
                                                             {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                                                         </select>
                                                     </td>
-                                                    <td className="px-2 py-2">
-                                                        <textarea rows={2} value={item.description} onChange={e => handleItemChange(idx, 'description', e.target.value)} className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-brand sm:text-sm sm:leading-6 px-3" />
-                                                    </td>
+                                                     <td className="px-2 py-2">
+                                                         <AutoResizeTextarea rows={2} value={item.description} onChange={e => handleItemChange(idx, 'description', e.target.value)} className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-brand sm:text-sm sm:leading-6 px-3" />
+                                                     </td>
                                                     <td className="px-2 py-2">
                                                         <input type="number" min="0" step="0.01" value={item.quantity} onChange={e => handleItemChange(idx, 'quantity', e.target.value)} className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-brand sm:text-sm sm:leading-6 px-3" />
                                                     </td>
