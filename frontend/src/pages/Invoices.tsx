@@ -385,6 +385,7 @@ export default function Invoices() {
                                     <tr>
                                         <th className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Invoice #</th>
                                         <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Customer</th>
+                                        <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Project / Site Name</th>
                                         <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Invoice Date</th>
                                         <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Due Date</th>
                                         <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Total</th>
@@ -396,6 +397,7 @@ export default function Invoices() {
                                         <tr key={inv.id} className="hover:bg-gray-50 transition-colors">
                                             <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">{inv.invoice_number}</td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-900">{inv.company_name || inv.customer_name}</td>
+                                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{inv.project_name || '—'}</td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{format(new Date(inv.issue_date), 'dd MMM yyyy')}</td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{format(new Date(inv.due_date), 'dd MMM yyyy')}</td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-900 font-medium">${formatCurrency(inv.total)}</td>
@@ -409,7 +411,7 @@ export default function Invoices() {
                                     ))}
                                     {invoices.length === 0 && (
                                         <tr>
-                                            <td colSpan={6} className="py-8 text-center text-sm text-gray-500">No invoices found.</td>
+                                            <td colSpan={7} className="py-8 text-center text-sm text-gray-500">No invoices found.</td>
                                         </tr>
                                     )}
                                 </tbody>

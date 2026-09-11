@@ -268,6 +268,7 @@ export default function DeliveryOrders() {
                                     <tr>
                                         <th className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">DO #</th>
                                         <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Customer</th>
+                                        <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Project / Site Name</th>
                                         <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Delivery Date</th>
                                         <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Status</th>
                                         <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Signature</th>
@@ -279,6 +280,7 @@ export default function DeliveryOrders() {
                                         <tr key={doItem.id} className="hover:bg-gray-50 transition-colors">
                                             <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">{doItem.do_number}</td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-900">{doItem.company_name || doItem.customer_name}</td>
+                                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{doItem.project_name || '—'}</td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{format(new Date(doItem.delivery_date), 'dd MMM yyyy')}</td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm">
                                                 <span className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${doItem.delivery_status === 'Delivered' ? 'bg-green-50 text-green-700 ring-green-600/20' :
@@ -300,7 +302,7 @@ export default function DeliveryOrders() {
                                     ))}
                                     {deliveryOrders.length === 0 && (
                                         <tr>
-                                            <td colSpan={6} className="py-8 text-center text-sm text-gray-500">No delivery orders found.</td>
+                                            <td colSpan={7} className="py-8 text-center text-sm text-gray-500">No delivery orders found.</td>
                                         </tr>
                                     )}
                                 </tbody>

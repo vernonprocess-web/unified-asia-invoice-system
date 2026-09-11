@@ -436,6 +436,7 @@ export default function Quotations() {
                                     <tr>
                                         <th className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Quote #</th>
                                         <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Customer</th>
+                                        <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Project / Site Name</th>
                                         <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Quotation Date</th>
                                         <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Total</th>
                                         <th className="relative py-3.5 pl-3 pr-4 sm:pr-6"><span className="sr-only">Actions</span></th>
@@ -446,6 +447,7 @@ export default function Quotations() {
                                         <tr key={qt.id} className="hover:bg-gray-50 transition-colors">
                                             <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">{qt.quotation_number}</td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-900">{qt.company_name || qt.customer_name}</td>
+                                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{qt.project_name || '—'}</td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{format(new Date(qt.issue_date), 'dd MMM yyyy')}</td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-900 font-medium">${formatCurrency(qt.total)}</td>
                                             <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6 space-x-3 flex justify-end items-center">
@@ -458,7 +460,7 @@ export default function Quotations() {
                                     ))}
                                     {quotations.length === 0 && (
                                         <tr>
-                                            <td colSpan={5} className="py-8 text-center text-sm text-gray-500">No quotations found.</td>
+                                            <td colSpan={6} className="py-8 text-center text-sm text-gray-500">No quotations found.</td>
                                         </tr>
                                     )}
                                 </tbody>
