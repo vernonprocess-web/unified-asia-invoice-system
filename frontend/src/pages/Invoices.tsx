@@ -389,23 +389,25 @@ export default function Invoices() {
                                         <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Invoice Date</th>
                                         <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Due Date</th>
                                         <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Total</th>
-                                        <th className="relative py-3.5 pl-3 pr-4 sm:pr-6"><span className="sr-only">Actions</span></th>
+                                        <th className="py-3.5 pl-3 pr-4 text-right text-sm font-semibold text-gray-900 sm:pr-6"><span className="sr-only">Actions</span></th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-200 bg-white">
                                     {invoices.map((inv) => (
                                         <tr key={inv.id} className="hover:bg-gray-50 transition-colors">
                                             <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">{inv.invoice_number}</td>
-                                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-900">{inv.company_name || inv.customer_name}</td>
-                                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{inv.project_name || '—'}</td>
+                                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-900 max-w-[180px] truncate" title={inv.company_name || inv.customer_name}>{inv.company_name || inv.customer_name}</td>
+                                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 max-w-[240px] truncate" title={inv.project_name || ''}>{inv.project_name || '—'}</td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{format(new Date(inv.issue_date), 'dd MMM yyyy')}</td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{format(new Date(inv.due_date), 'dd MMM yyyy')}</td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-900 font-medium">${formatCurrency(inv.total)}</td>
-                                            <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6 space-x-3 flex justify-end items-center">
-                                                <button onClick={() => handleGeneratePDF(inv)} disabled={generatingPdf === inv.id} className="text-blue-600 hover:text-blue-900 inline-flex items-center" title="Download Document">{generatingPdf === inv.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}</button>
-                                                <button onClick={() => handleConvertToDO(inv)} title="Convert to Delivery Order" className="text-green-600 hover:text-green-900 inline-flex items-center"><Truck className="w-4 h-4" /></button>
-                                                <button onClick={() => openEdit(inv)} className="text-indigo-600 hover:text-indigo-900 inline-flex items-center"><Edit2 className="w-4 h-4" /></button>
-                                                <button onClick={() => handleDelete(inv.id)} className="text-red-600 hover:text-red-900 inline-flex items-center"><Trash2 className="w-4 h-4" /></button>
+                                            <td className="whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+                                                <div className="flex items-center justify-end space-x-3">
+                                                    <button onClick={() => handleGeneratePDF(inv)} disabled={generatingPdf === inv.id} className="text-blue-600 hover:text-blue-900 inline-flex items-center" title="Download Document">{generatingPdf === inv.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}</button>
+                                                    <button onClick={() => handleConvertToDO(inv)} title="Convert to Delivery Order" className="text-green-600 hover:text-green-900 inline-flex items-center"><Truck className="w-4 h-4" /></button>
+                                                    <button onClick={() => openEdit(inv)} className="text-indigo-600 hover:text-indigo-900 inline-flex items-center"><Edit2 className="w-4 h-4" /></button>
+                                                    <button onClick={() => handleDelete(inv.id)} className="text-red-600 hover:text-red-900 inline-flex items-center"><Trash2 className="w-4 h-4" /></button>
+                                                </div>
                                             </td>
                                         </tr>
                                     ))}

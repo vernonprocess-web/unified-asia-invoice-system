@@ -439,22 +439,24 @@ export default function Quotations() {
                                         <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Project / Site Name</th>
                                         <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Quotation Date</th>
                                         <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Total</th>
-                                        <th className="relative py-3.5 pl-3 pr-4 sm:pr-6"><span className="sr-only">Actions</span></th>
+                                        <th className="py-3.5 pl-3 pr-4 text-right text-sm font-semibold text-gray-900 sm:pr-6"><span className="sr-only">Actions</span></th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-200 bg-white">
                                     {quotations.map((qt) => (
                                         <tr key={qt.id} className="hover:bg-gray-50 transition-colors">
                                             <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">{qt.quotation_number}</td>
-                                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-900">{qt.company_name || qt.customer_name}</td>
-                                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{qt.project_name || '—'}</td>
+                                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-900 max-w-[180px] truncate" title={qt.company_name || qt.customer_name}>{qt.company_name || qt.customer_name}</td>
+                                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 max-w-[240px] truncate" title={qt.project_name || ''}>{qt.project_name || '—'}</td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{format(new Date(qt.issue_date), 'dd MMM yyyy')}</td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-900 font-medium">${formatCurrency(qt.total)}</td>
-                                            <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6 space-x-3 flex justify-end items-center">
-                                                <button onClick={() => handleGeneratePDF(qt)} disabled={generatingPdf === qt.id} className="text-blue-600 hover:text-blue-900 inline-flex items-center" title="Download Document">{generatingPdf === qt.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}</button>
-                                                <button onClick={() => handleConvert(qt)} title="Convert to Invoice" className="text-green-600 hover:text-green-900 inline-flex items-center"><FileText className="w-4 h-4" /></button>
-                                                <button onClick={() => openEdit(qt)} className="text-indigo-600 hover:text-indigo-900 inline-flex items-center"><Edit2 className="w-4 h-4" /></button>
-                                                <button onClick={() => handleDelete(qt.id)} className="text-red-600 hover:text-red-900 inline-flex items-center"><Trash2 className="w-4 h-4" /></button>
+                                            <td className="whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+                                                <div className="flex items-center justify-end space-x-3">
+                                                    <button onClick={() => handleGeneratePDF(qt)} disabled={generatingPdf === qt.id} className="text-blue-600 hover:text-blue-900 inline-flex items-center" title="Download Document">{generatingPdf === qt.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}</button>
+                                                    <button onClick={() => handleConvert(qt)} title="Convert to Invoice" className="text-green-600 hover:text-green-900 inline-flex items-center"><FileText className="w-4 h-4" /></button>
+                                                    <button onClick={() => openEdit(qt)} className="text-indigo-600 hover:text-indigo-900 inline-flex items-center"><Edit2 className="w-4 h-4" /></button>
+                                                    <button onClick={() => handleDelete(qt.id)} className="text-red-600 hover:text-red-900 inline-flex items-center"><Trash2 className="w-4 h-4" /></button>
+                                                </div>
                                             </td>
                                         </tr>
                                     ))}

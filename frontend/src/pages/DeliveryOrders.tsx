@@ -272,15 +272,15 @@ export default function DeliveryOrders() {
                                         <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Delivery Date</th>
                                         <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Status</th>
                                         <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Signature</th>
-                                        <th className="relative py-3.5 pl-3 pr-4 sm:pr-6"><span className="sr-only">Actions</span></th>
+                                        <th className="py-3.5 pl-3 pr-4 text-right text-sm font-semibold text-gray-900 sm:pr-6"><span className="sr-only">Actions</span></th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-200 bg-white">
                                     {deliveryOrders.map((doItem) => (
                                         <tr key={doItem.id} className="hover:bg-gray-50 transition-colors">
                                             <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">{doItem.do_number}</td>
-                                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-900">{doItem.company_name || doItem.customer_name}</td>
-                                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{doItem.project_name || '—'}</td>
+                                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-900 max-w-[180px] truncate" title={doItem.company_name || doItem.customer_name}>{doItem.company_name || doItem.customer_name}</td>
+                                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 max-w-[240px] truncate" title={doItem.project_name || ''}>{doItem.project_name || '—'}</td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{format(new Date(doItem.delivery_date), 'dd MMM yyyy')}</td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm">
                                                 <span className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${doItem.delivery_status === 'Delivered' ? 'bg-green-50 text-green-700 ring-green-600/20' :
@@ -293,10 +293,12 @@ export default function DeliveryOrders() {
                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                                                 {doItem.signature_url ? <span className="text-green-600 flex items-center"><PenTool className="w-4 h-4 mr-1" /> Signed</span> : <span className="text-gray-400">No Signature</span>}
                                             </td>
-                                            <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6 space-x-3 flex justify-end items-center">
-                                                <button onClick={() => handleGeneratePDF(doItem)} disabled={generatingPdf === doItem.id} className="text-blue-600 hover:text-blue-900 inline-flex items-center" title="Download Document">{generatingPdf === doItem.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}</button>
-                                                <button onClick={() => openEdit(doItem)} className="text-indigo-600 hover:text-indigo-900 inline-flex items-center"><Edit2 className="w-4 h-4" /></button>
-                                                <button onClick={() => handleDelete(doItem.id)} className="text-red-600 hover:text-red-900 inline-flex items-center"><Trash2 className="w-4 h-4" /></button>
+                                            <td className="whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+                                                <div className="flex items-center justify-end space-x-3">
+                                                    <button onClick={() => handleGeneratePDF(doItem)} disabled={generatingPdf === doItem.id} className="text-blue-600 hover:text-blue-900 inline-flex items-center" title="Download Document">{generatingPdf === doItem.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}</button>
+                                                    <button onClick={() => openEdit(doItem)} className="text-indigo-600 hover:text-indigo-900 inline-flex items-center"><Edit2 className="w-4 h-4" /></button>
+                                                    <button onClick={() => handleDelete(doItem.id)} className="text-red-600 hover:text-red-900 inline-flex items-center"><Trash2 className="w-4 h-4" /></button>
+                                                </div>
                                             </td>
                                         </tr>
                                     ))}
